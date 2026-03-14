@@ -718,7 +718,7 @@ async function loadCalendarEvents(){
   }
   const key = atob(keyEnc);
   const now = new Date().toISOString();
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?key=${key}&timeMin=${now}&maxResults=3&singleEvents=true&orderBy=startTime&fields=items(summary,start,htmlLink)`;
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?key=${key}&timeMin=${now}&maxResults=3&singleEvents=true&orderBy=startTime`;
   try {
     const r = await fetch(url);
     const d = await r.json();
@@ -733,7 +733,7 @@ async function loadCalendarEvents(){
     }
     el.innerHTML = items.map(ev => `
       <a href="${ev.htmlLink}" target="_blank" style="display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:1px solid var(--bdr);text-decoration:none" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
-        <div style="font-size:12px;font-weight:500;color:var(--text);font-family:'Epilogue',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.summary}</div>
+        <div style="font-size:12px;font-weight:500;color:var(--text);font-family:'Epilogue',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.summary || 'Untitled event'}</div>
         <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.04em">${fmtEventTime(ev)}</div>
       </a>`).join('');
   } catch(e){
