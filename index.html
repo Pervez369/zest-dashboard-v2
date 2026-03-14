@@ -233,19 +233,15 @@ textarea.inp{resize:none;height:90px;line-height:1.6;font-size:12px}
     <!-- CALENDAR + QUOTE -->
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
 
-      <!-- CALENDAR -->
-      <div class="card" style="padding:0;overflow:hidden">
-        <div class="card-label" style="padding:14px 16px 0">
-          <span>📅 Calendar</span>
+      <!-- LIVE CALENDAR EVENTS -->
+      <div class="card">
+        <div class="card-label">
+          <span>📅 Upcoming</span>
           <a class="card-link" href="https://calendar.google.com" target="_blank">Open →</a>
         </div>
-        <div style="overflow:hidden;height:220px;position:relative;margin-top:8px">
-          <iframe
-            src="https://calendar.google.com/calendar/embed?src=pervez%40zestlighting.com.au&ctz=Australia%2FSydney&showTitle=0&showNav=0&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&bgcolor=%231e2128"
-            style="width:143%;height:314px;border:none;display:block;transform:scale(0.7);transform-origin:top left;pointer-events:auto"
-            frameborder="0"
-            scrolling="no">
-          </iframe>
+        <div id="cal-events"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">Loading…</div></div>
+        <div class="pat-row" style="margin-top:10px">
+          API Key: <input class="pat-inp" id="gcal-key" type="password" placeholder="paste once to enable…" onchange="saveGcalKey(this.value)">
         </div>
       </div>
 
@@ -256,7 +252,7 @@ textarea.inp{resize:none;height:90px;line-height:1.6;font-size:12px}
           <button class="card-link" onclick="nextQuote()" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.06em">↻ Next</button>
         </div>
         <div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0">
-          <div id="quote-text" style="font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:var(--text);line-height:1.6;letter-spacing:-.1px"></div>
+          <div id="quote-text" style="font-family:'Epilogue',sans-serif;font-size:13px;font-weight:500;color:var(--text);line-height:1.7"></div>
         </div>
         <div id="quote-author" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.08em;margin-top:12px;padding-top:10px;border-top:1px solid var(--bdr)"></div>
       </div>
@@ -652,9 +648,9 @@ const QUOTES = [
   {text:"The way to get started is to quit talking and begin doing.",author:"Walt Disney"},
   {text:"What gets measured gets managed.",author:"Peter Drucker"},
   {text:"Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat.",author:"Sun Tzu"},
-  {text:"An organisation's ability to learn, and translate that learning into action rapidly, is the ultimate competitive advantage.",author:"Jack Welch"},
+  {text:"An organisation's ability to learn and translate that learning into action rapidly is the ultimate competitive advantage.",author:"Jack Welch"},
   {text:"The secret of getting ahead is getting started.",author:"Mark Twain"},
-  {text:"In preparing for battle I have always found that plans are useless, but planning is indispensable.",author:"Dwight D. Eisenhower"},
+  {text:"Plans are useless, but planning is indispensable.",author:"Dwight D. Eisenhower"},
   {text:"The only way to do great work is to love what you do.",author:"Steve Jobs"},
   {text:"Your time is limited, so don't waste it living someone else's life.",author:"Steve Jobs"},
   {text:"The man who moves a mountain begins by carrying away small stones.",author:"Confucius"},
@@ -669,7 +665,6 @@ const QUOTES = [
   {text:"A calm sea does not make a skilled sailor.",author:"African Proverb"},
   {text:"He who has a why to live can bear almost any how.",author:"Friedrich Nietzsche"},
 ];
-
 let quoteIndex = 0;
 function showQuote(idx){
   const q = QUOTES[idx % QUOTES.length];
@@ -680,13 +675,73 @@ function nextQuote(){
   quoteIndex = (quoteIndex + 1) % QUOTES.length;
   showQuote(quoteIndex);
 }
-// seed with day-of-year so it changes daily but is consistent within the day
 const doy = Math.floor((new Date() - new Date(new Date().getFullYear(),0,0)) / 86400000);
 quoteIndex = doy % QUOTES.length;
 showQuote(quoteIndex);
 
-// ── CALENDAR ────────────────────────
-// Rendered via Google Calendar iframe embed
+// ── GOOGLE CALENDAR ──────────────────
+const GCAL_EMAIL = 'pervez@zestlighting.com.au';
+
+function saveGcalKey(val){
+  if(val){ localStorage.setItem('z_gcal_key', btoa(val)); }
+  document.getElementById('gcal-key').value = '';
+  document.getElementById('gcal-key').placeholder = '✓ Key saved';
+  loadCalendarEvents();
+}
+(function(){ if(localStorage.getItem('z_gcal_key')) document.getElementById('gcal-key').placeholder = '✓ Key saved'; })();
+
+function fmtEventTime(event){
+  if(event.start.date){
+    // all-day event
+    const d = new Date(event.start.date + 'T00:00:00');
+    const today = new Date(); today.setHours(0,0,0,0);
+    const diff = Math.round((d - today) / 86400000);
+    if(diff === 0) return 'Today · All day';
+    if(diff === 1) return 'Tomorrow · All day';
+    return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) + ' · All day';
+  }
+  const start = new Date(event.start.dateTime);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const diff = Math.round((start - today) / 86400000);
+  const timeStr = start.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true});
+  if(diff === 0) return 'Today · ' + timeStr;
+  if(diff === 1) return 'Tomorrow · ' + timeStr;
+  return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) + ' · ' + timeStr;
+}
+
+async function loadCalendarEvents(){
+  const keyEnc = localStorage.getItem('z_gcal_key');
+  const el = document.getElementById('cal-events');
+  if(!keyEnc){
+    el.innerHTML = '<div style="font-size:11px;color:var(--muted)">Paste your Google API key below to enable</div>';
+    return;
+  }
+  const key = atob(keyEnc);
+  const now = new Date().toISOString();
+  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?key=${key}&timeMin=${now}&maxResults=3&singleEvents=true&orderBy=startTime&fields=items(summary,start,htmlLink)`;
+  try {
+    const r = await fetch(url);
+    const d = await r.json();
+    if(d.error){
+      el.innerHTML = `<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.error.message}</div>`;
+      return;
+    }
+    const items = d.items || [];
+    if(!items.length){
+      el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:4px 0">No upcoming events 🎉</div>';
+      return;
+    }
+    el.innerHTML = items.map(ev => `
+      <a href="${ev.htmlLink}" target="_blank" style="display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:1px solid var(--bdr);text-decoration:none" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+        <div style="font-size:12px;font-weight:500;color:var(--text);font-family:'Epilogue',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.summary}</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.04em">${fmtEventTime(ev)}</div>
+      </a>`).join('');
+  } catch(e){
+    el.innerHTML = '<div style="font-size:10px;color:var(--red);font-family:\'DM Mono\',monospace">Network error</div>';
+  }
+}
+loadCalendarEvents();
+setInterval(loadCalendarEvents, 5 * 60 * 1000);
 </script>
 </body>
 </html>
