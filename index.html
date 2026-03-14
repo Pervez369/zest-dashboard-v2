@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zest · Command Centre</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23e8e6e1'/><circle cx='32' cy='32' r='18' fill='none' stroke='%23c47f17' stroke-width='3'/><circle cx='32' cy='32' r='6' fill='%23c47f17'/><line x1='32' y1='8' x2='32' y2='18' stroke='%23c47f17' stroke-width='2.5'/><line x1='32' y1='46' x2='32' y2='56' stroke='%23c47f17' stroke-width='2.5'/><line x1='8' y1='32' x2='18' y2='32' stroke='%23c47f17' stroke-width='2.5'/><line x1='46' y1='32' x2='56' y2='32' stroke='%23c47f17' stroke-width='2.5'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #1c1e22;
+  --bg2:    #22252b;
+  --bg3:    #272b32;
+  --surf:   #2d3139;
+  --surf2:  #333842;
+  --bdr:    rgba(255,255,255,0.07);
+  --bdr2:   rgba(255,255,255,0.13);
+  --text:   #e8e6e1;
+  --muted:  #7a8090;
+  --muted2: #a0a8b8;
+  --gold:   #c47f17;
+  --gold-l: #d4920a;
+  --gold-s: rgba(196,127,23,0.12);
+  --green:  #3a9e6a;
+  --red:    #c45050;
+  --blue:   #4a80d4;
+  --slate:  #8090a8;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilogue',sans-serif;font-size:13px;overflow:hidden}
+
+/* ── LAYOUT ── */
+.shell{display:grid;grid-template-rows:auto 1fr;height:100vh;width:100vw}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:52px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.content{display:grid;grid-template-columns:1fr 380px;gap:0;overflow:hidden;height:100%}
+.col-main{display:flex;flex-direction:column;padding:28px 24px 24px 28px;gap:18px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.col-side{border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+
+/* ── TOPBAR ── */
+.tb-left{display:flex;align-items:baseline;gap:14px}
+.tb-greeting{font-family:'Instrument Serif',serif;font-size:16px;font-style:italic;color:var(--text);letter-spacing:-.2px}
+.tb-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em}
+.tb-right{display:flex;align-items:center;gap:6px}
+.tb-clock{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted2);letter-spacing:.06em;margin-right:10px}
+.ai-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:500;font-family:'Epilogue',sans-serif;color:var(--muted2);border:1px solid var(--bdr);transition:all .13s;background:var(--bg2)}
+.ai-btn:hover{border-color:var(--bdr2);color:var(--text);background:var(--surf)}
+.tb-div{width:1px;height:16px;background:var(--bdr2);margin:0 2px}
+
+/* ── FOCUS HERO ── */
+.focus-hero{background:var(--bg2);border:1px solid var(--bdr);border-radius:14px;padding:22px 24px;position:relative;overflow:hidden}
+.focus-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent 60%)}
+.focus-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
+.focus-input{width:100%;background:transparent;border:none;outline:none;font-family:'Instrument Serif',serif;font-size:22px;color:var(--text);caret-color:var(--gold);letter-spacing:-.3px;line-height:1.3}
+.focus-input::placeholder{color:var(--muted)}
+.focus-meta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)}
+.focus-hint{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);letter-spacing:.06em}
+.focus-clear{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);cursor:pointer;background:none;border:none;letter-spacing:.06em;transition:color .12s}
+.focus-clear:hover{color:var(--red)}
+
+/* ── TWO COL UNDER FOCUS ── */
+.under-focus{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+
+/* ── CARDS ── */
+.card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:16px}
+.card-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-link{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);text-decoration:none;letter-spacing:.06em;transition:color .12s}
+.card-link:hover{color:var(--gold)}
+
+/* ── ASANA ── */
+.task-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--bdr)}
+.task-item:last-child{border-bottom:none}
+.task-cb{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--surf2);flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--bg)}
+.task-cb:hover{border-color:var(--gold);background:var(--gold-s)}
+.task-cb.done{background:var(--gold);border-color:var(--gold)}
+.task-name{font-size:12px;color:var(--muted2);line-height:1.35;text-decoration:none;display:block;transition:color .12s}
+.task-name:hover{color:var(--text)}
+.task-name.done{text-decoration:line-through;color:var(--muted)}
+.sec-label{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:8px 0 3px;border-top:1px solid var(--bdr);margin-top:2px}
+.task-list-scroll{max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.proj-select{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted2);background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:2px 6px;cursor:pointer;outline:none;max-width:140px;transition:border-color .12s}
+.proj-select:focus{border-color:var(--gold)}
+.task-add{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)}
+.inp{width:100%;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;color:var(--text);font-size:12px;font-family:'Epilogue',sans-serif;outline:none;transition:border-color .12s}
+.inp::placeholder{color:var(--muted)}
+.inp:focus{border-color:var(--gold)}
+.btn-s{background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:6px;padding:4px 9px;font-size:9px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .12s;white-space:nowrap}
+.btn-s:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── QUICK LINKS ── */
+.ql{display:flex;flex-direction:column;gap:3px}
+.ql-a{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;text-decoration:none;color:var(--muted2);font-size:11.5px;transition:all .12s;border:1px solid transparent}
+.ql-a:hover{background:var(--surf);color:var(--text);border-color:var(--bdr)}
+.ql-a .qi{width:16px;text-align:center;flex-shrink:0;font-size:13px}
+.ql-arr{margin-left:auto;color:var(--muted);font-size:10px;opacity:.5}
+
+/* ── SIDE PANEL ── */
+.side-section{padding:20px;border-bottom:1px solid var(--bdr)}
+.side-section:last-child{border-bottom:none}
+.side-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;cursor:default}
+
+/* ── SLACK ── */
+.slack-toggle{cursor:pointer;user-select:none}
+.slack-toggle:hover .side-label-text{color:var(--text)}
+.slack-expand-btn{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.06em;transition:color .12s;padding:0}
+.slack-expand-btn:hover{color:var(--gold)}
+.slack-channels{display:flex;flex-direction:column;gap:2px}
+.slack-ch-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;text-decoration:none;transition:background .12s}
+.slack-ch-row:hover{background:var(--surf)}
+.slack-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
+.slack-ch-name{font-size:11px;color:var(--muted2);flex:1}
+.slack-ch-row:hover .slack-ch-name{color:var(--text)}
+.slack-feed-wrap{margin-top:10px;display:none}
+.slack-feed-wrap.open{display:block}
+.slack-item{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)}
+.slack-item:last-child{border-bottom:none}
+.slack-item-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0;margin-top:4px}
+.slack-body{flex:1;min-width:0}
+.slack-meta{display:flex;align-items:baseline;gap:5px;margin-bottom:2px}
+.slack-ch{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--blue)}
+.slack-who{font-size:10px;color:var(--muted)}
+.slack-time{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-left:auto}
+.slack-msg{font-size:11px;color:var(--muted2);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slack-filter-row{display:flex;gap:6px;margin-bottom:8px}
+.slack-filter{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:4px 8px;font-size:11px;font-family:'Epilogue',sans-serif;color:var(--text);outline:none}
+.slack-filter:focus{border-color:var(--gold)}
+.slack-filter::placeholder{color:var(--muted)}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:4px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── WEATHER STRIP ── */
+.weather-strip{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--bdr);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
+.wx-temp{font-size:13px;font-weight:500;color:var(--muted2)}
+
+/* ── SCRATCHPAD ── */
+textarea.inp{resize:none;height:90px;line-height:1.6;font-size:12px}
+
+/* ── TOOLS (side nav links) ── */
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.tool-a{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;text-decoration:none;color:var(--muted2);font-size:11px;transition:all .12s;border:1px solid transparent}
+.tool-a:hover{background:var(--surf);color:var(--text);border-color:var(--bdr)}
+
+/* ── PAT FIELD ── */
+.pat-row{margin-top:8px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
+.pat-inp{background:transparent;border:none;border-bottom:1px solid var(--bdr);color:var(--muted2);font-size:8px;font-family:'DM Mono',monospace;width:150px;outline:none}
+.pat-inp::placeholder{color:var(--muted)}
+
+/* ── KABUL ── */
+.kabul-row{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-left:10px}
+
+/* scrollbar */
+::-webkit-scrollbar{width:3px;height:3px}
+::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── TOPBAR ── -->
+<div class="topbar">
+  <div class="tb-left">
+    <div class="tb-greeting" id="tb-greeting">Good morning, Pervez</div>
+    <div class="tb-date" id="tb-date">—</div>
+    <div class="kabul-row">🇦🇫 <span id="kabul-t">--:--</span></div>
+  </div>
+  <div class="tb-right">
+    <div class="tb-clock" id="tb-clock">--:--</div>
+    <div class="tb-div"></div>
+    <a class="ai-btn" href="https://claude.ai" target="_blank"><img src="https://icon.horse/icon/claude.ai" width="12" height="12" style="border-radius:2px;vertical-align:middle"> Claude</a>
+    <a class="ai-btn" href="https://gemini.google.com" target="_blank"><img src="https://icon.horse/icon/gemini.google.com" width="12" height="12" style="border-radius:2px;vertical-align:middle"> Gemini</a>
+    <a class="ai-btn" href="https://chatgpt.com" target="_blank"><img src="https://cdn.oaistatic.com/assets/favicon-o20kmmos.svg" width="12" height="12" style="border-radius:2px;vertical-align:middle"> ChatGPT</a>
+    <div class="tb-div"></div>
+    <a class="ai-btn" href="#" id="personal-view-btn" style="color:var(--gold);border-color:rgba(196,127,23,.2)">🏠 Personal</a>
+  </div>
+</div>
+
+<!-- ── CONTENT ── -->
+<div class="content">
+
+  <!-- LEFT: main action area -->
+  <div class="col-main">
+
+    <!-- FOCUS HERO -->
+    <div class="focus-hero">
+      <div class="focus-label">Today's focus</div>
+      <input class="focus-input" id="focus-input" placeholder="What's the one thing that matters today?" autocomplete="off">
+      <div class="focus-meta">
+        <span class="focus-hint" id="focus-saved"></span>
+        <button class="focus-clear" onclick="clearFocus()">Clear</button>
+      </div>
+    </div>
+
+    <!-- ASANA + QUICK ACTIONS -->
+    <div class="under-focus">
+
+      <!-- ASANA TASKS -->
+      <div class="card" style="display:flex;flex-direction:column">
+        <div class="card-label">
+          <span>🎯 Open Tasks</span>
+          <div style="display:flex;align-items:center;gap:7px">
+            <select class="proj-select" id="asana-project-select" onchange="loadAsanaTasks()">
+              <option value="">All my tasks</option>
+            </select>
+            <a class="card-link" href="https://app.sunsama.com" target="_blank">Sunsama →</a>
+            <a class="card-link" href="https://app.asana.com" target="_blank">Asana →</a>
+          </div>
+        </div>
+        <div class="task-list-scroll" id="asana-list"></div>
+        <div class="task-add">
+          <input class="inp" id="new-task-input" style="font-size:11px" placeholder="Add task…" onkeydown="if(event.key==='Enter')addTask()">
+          <button class="btn-s" id="add-task-btn" onclick="addTask()" style="padding:5px 10px">+ Add</button>
+        </div>
+        <div id="add-task-status" style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;min-height:11px"></div>
+        <div class="pat-row">PAT: <input class="pat-inp" id="asana-pat" type="password" placeholder="paste once to enable…" onchange="saveAsanaPat(this.value)"></div>
+      </div>
+
+      <!-- QUICK ACTIONS -->
+      <div class="card">
+        <div class="card-label">⚡ Quick Actions</div>
+        <div class="ql">
+          <a class="ql-a" href="https://login.xero.com/identity/connect/authorize?client_id=xero_reporting_hybrid-web&redirect_uri=https%3A%2F%2Freporting.xero.com%2Fsignin-oidc&response_mode=form_post&response_type=code%20id_token&scope=xero_all-apis%20openid%20email%20profile&state=OpenIdConnect.AuthenticationProperties%3D6P8R5zF4DguDvJSAT3aE5aBRtUlT4RKnhwsVTYpELwo91Y-qBrHFsDm-1AQ3eFBpLy6HoRklrMe-I9vsh0AJOVwqSewriFNINXGloCEIJNa-5EFbwqTOQspHBrSKlOivZmoHZhDOCoafFGFnB_LJYP0sAOncC3Rtszco8h3k9KFqs-q_rfFvaK-RHJmETetqMQFoAmoL699o-SiQy7SYvuwQrMcYF-cX1shu2VjPYRYXAohm1DQOg-mRVf3cOZ7h-dvVZP68F9S4s47tI6goSA&nonce=639089119749575882.MmMwNGU5MmUtYWUyZS00MGVlLTllZTQtOTEzYWUxYWM4ZjA5MWM5NzU3NDktZmExNy00OGM4LTk0YzUtNmYwYTFlNjUwZDJm&x-client-SKU=ID_NET451&x-client-ver=1.3.16.0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Xero P&L <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://store-pvv5u2d.mybigcommerce.com/manage/analytics/overview" target="_blank"><span class="qi"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> BC Analytics <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Google Ads <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://insights.cin7.com/Frontend#/" target="_blank"><span class="qi"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Cin7 Insights <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://pervez369.github.io/adwords-dashboard/" target="_blank"><span class="qi">📊</span> Adwords Dashboard <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://app.frontapp.com" target="_blank"><span class="qi"><img src="https://icon.horse/icon/frontapp.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Front Inbox <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://app-ap1.hubspot.com/contacts/21975795/objects/0-1/views/47517982/list" target="_blank"><span class="qi"><img src="https://icon.horse/icon/hubspot.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> HubSpot Contacts <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://app-ap1.hubspot.com/contacts/21975795/objects/0-3/views/47703386/board" target="_blank"><span class="qi"><img src="https://icon.horse/icon/hubspot.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> HubSpot Deals <span class="ql-arr">→</span></a>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCRATCHPAD -->
+    <div class="card">
+      <div class="card-label">
+        <span>🗒️ Scratchpad</span>
+        <button class="btn-s" onclick="saveScratch()">Save</button>
+      </div>
+      <textarea class="inp" id="scratch" placeholder="Notes, ideas, follow-ups…"></textarea>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: side panel -->
+  <div class="col-side">
+
+    <!-- WEATHER -->
+    <div class="weather-strip">
+      <span id="wx-icon" style="font-size:14px">—</span>
+      <span class="wx-temp" id="wx-temp"></span>
+      <span id="wx-desc" style="flex:1">Sydney</span>
+      <span style="color:var(--muted);font-size:9px">Sydney</span>
+    </div>
+
+    <!-- SLACK — collapsed by default -->
+    <div class="side-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer" onclick="toggleSlack()">
+        <div style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px">
+          <span class="ldot"></span> Slack
+        </div>
+        <button class="slack-expand-btn" id="slack-toggle-btn">Show feed ↓</button>
+      </div>
+      <!-- channel dots always visible -->
+      <div class="slack-channels" id="slack-channels"></div>
+      <!-- feed — hidden until expanded -->
+      <div class="slack-feed-wrap" id="slack-feed-wrap">
+        <div class="slack-filter-row" style="margin-top:10px">
+          <input class="slack-filter" id="slack-filter" placeholder="Filter…" oninput="renderFeed()">
+          <button class="btn-s" onclick="doRefresh()" id="refresh-btn">↻</button>
+        </div>
+        <div id="slack-feed"></div>
+      </div>
+    </div>
+
+    <!-- TOOLS -->
+    <div class="side-section">
+      <div class="side-label">All Tools</div>
+      <div class="tools-grid">
+        <a class="tool-a" href="https://app.frontapp.com" target="_blank"><img src="https://icon.horse/icon/frontapp.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Front</a>
+        <a class="tool-a" href="https://app.slack.com/client/TCGD7QVGC" target="_blank"><img src="https://icon.horse/icon/slack.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Slack</a>
+        <a class="tool-a" href="https://calendar.google.com" target="_blank"><img src="https://icon.horse/icon/calendar.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Calendar</a>
+        <a class="tool-a" href="https://app.sunsama.com" target="_blank"><img src="https://icon.horse/icon/sunsama.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Sunsama</a>
+        <a class="tool-a" href="https://app.asana.com" target="_blank"><img src="https://icon.horse/icon/asana.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Asana</a>
+        <a class="tool-a" href="https://login.bigcommerce.com/login" target="_blank"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> BigCommerce</a>
+        <a class="tool-a" href="https://auth.cin7.com/Account/Login" target="_blank"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Cin7</a>
+        <a class="tool-a" href="https://merchants.google.com" target="_blank"><img src="https://icon.horse/icon/merchants.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Google MC</a>
+        <a class="tool-a" href="https://app.datafeedwatch.com" target="_blank"><img src="https://icon.horse/icon/datafeedwatch.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> DataFeedWatch</a>
+        <a class="tool-a" href="https://make.com" target="_blank"><img src="https://icon.horse/icon/make.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Make.com</a>
+        <a class="tool-a" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Google Ads</a>
+        <a class="tool-a" href="https://business.facebook.com" target="_blank"><img src="https://icon.horse/icon/business.facebook.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Meta Ads</a>
+        <a class="tool-a" href="https://ads.microsoft.com" target="_blank"><img src="https://icon.horse/icon/ads.microsoft.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Bing Ads</a>
+        <a class="tool-a" href="https://www.semrush.com" target="_blank"><img src="https://icon.horse/icon/semrush.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> SEMrush</a>
+        <a class="tool-a" href="https://go.xero.com" target="_blank"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Xero</a>
+        <a class="tool-a" href="https://www.commbank.com.au/business" target="_blank"><img src="https://icon.horse/icon/commbank.com.au" width="13" height="13" style="border-radius:2px;vertical-align:middle"> CBA</a>
+        <a class="tool-a" href="https://global.americanexpress.com" target="_blank"><img src="https://icon.horse/icon/americanexpress.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Amex</a>
+        <a class="tool-a" href="https://www.nab.com.au" target="_blank"><img src="https://icon.horse/icon/nab.com.au" width="13" height="13" style="border-radius:2px;vertical-align:middle"> NAB</a>
+        <a class="tool-a" href="https://drive.google.com" target="_blank"><img src="https://icon.horse/icon/drive.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Drive</a>
+        <a class="tool-a" href="https://app-ap1.hubspot.com/contacts/21975795" target="_blank"><img src="https://icon.horse/icon/hubspot.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> HubSpot</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ── CLOCK ───────────────────────────
+function tick(){
+  const n=new Date(),p=v=>String(v).padStart(2,'0');
+  const h=n.getHours(),ampm=h>=12?'pm':'am',h12=h%12||12;
+  document.getElementById('tb-clock').textContent=`${h12}:${p(n.getMinutes())} ${ampm}`;
+  const D=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('tb-date').textContent=`${D[n.getDay()]} ${n.getDate()} ${M[n.getMonth()]}`;
+  const kabul=new Date(n.getTime()+n.getTimezoneOffset()*60000+(4*60+30)*60000);
+  const kh=kabul.getHours(),kampm=kh>=12?'pm':'am',kh12=kh%12||12;
+  document.getElementById('kabul-t').textContent=`${kh12}:${p(kabul.getMinutes())}${kampm}`;
+  const greetEl=document.getElementById('tb-greeting');
+  if(greetEl) greetEl.textContent=(h<12?'Good morning':h<18?'Good afternoon':'Good evening')+', Pervez';
+}
+setInterval(tick,1000);tick();
+
+// ── WEATHER ─────────────────────────
+const WX_CODES={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Foggy'],48:['🌫️','Foggy'],51:['🌦️','Drizzle'],61:['🌧️','Rain'],63:['🌧️','Rain'],80:['🌦️','Showers'],95:['⛈️','Thunderstorm']};
+function applyWeather(t,c){
+  const w=WX_CODES[c]||['🌡️',''];
+  document.getElementById('wx-icon').textContent=w[0];
+  document.getElementById('wx-temp').textContent=`${Math.round(t)}°`;
+  document.getElementById('wx-desc').textContent=w[1]||'';
+}
+async function loadWeather(){
+  const URL='https://api.open-meteo.com/v1/forecast?latitude=-33.8688&longitude=151.2093&current=temperature_2m,weathercode&timezone=Australia%2FSydney';
+  try{const r=await fetch(URL);if(r.ok){const d=await r.json();applyWeather(d.current.temperature_2m,d.current.weathercode);return;}}catch(e){}
+  try{const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(URL));if(r.ok){const d=await r.json();applyWeather(d.current.temperature_2m,d.current.weathercode);return;}}catch(e){}
+}
+loadWeather();setInterval(loadWeather,15*60*1000);
+
+// ── FOCUS ────────────────────────────
+const focusInput = document.getElementById('focus-input');
+const focusSaved = document.getElementById('focus-saved');
+focusInput.value = localStorage.getItem('z_focus')||'';
+focusInput.addEventListener('input', ()=>{
+  localStorage.setItem('z_focus', focusInput.value);
+  focusSaved.textContent = focusInput.value ? '✓ saved' : '';
+});
+if(focusInput.value) focusSaved.textContent='✓ saved';
+function clearFocus(){
+  focusInput.value='';
+  localStorage.removeItem('z_focus');
+  focusSaved.textContent='';
+  focusInput.focus();
+}
+
+// ── ASANA ───────────────────────────
+const ASANA_WORKSPACE = '447722705768120';
+let TASKS = [];
+let CURRENT_SECTIONS = [];
+
+function taskRow(t, done){
+  return `<div class="task-item" id="t${t.gid}">
+    <div class="task-cb${done.includes(t.gid)?' done':''}" onclick="toggleTask('${t.gid}')">${done.includes(t.gid)?'✓':''}</div>
+    <a href="${t.url}" target="_blank" class="task-name${done.includes(t.gid)?' done':''}">${t.name}</a>
+  </div>`;
+}
+
+function renderAsana(tasks, sections){
+  if(tasks) TASKS = tasks;
+  if(sections !== undefined) CURRENT_SECTIONS = sections || [];
+  const done = JSON.parse(localStorage.getItem('z_done')||'[]');
+  const el = document.getElementById('asana-list');
+  const visible = TASKS.filter(t => !done.includes(t.gid));
+  if(!visible.length){
+    el.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0">No open tasks 🎉</div>';
+    return;
+  }
+  if(CURRENT_SECTIONS.length){
+    let html='';
+    CURRENT_SECTIONS.forEach(sec=>{
+      const st=visible.filter(t=>t.sectionGid===sec.gid);
+      if(!st.length) return;
+      html+=`<div class="sec-label">${sec.name}</div>`;
+      html+=st.map(t=>taskRow(t,done)).join('');
+    });
+    html+=visible.filter(t=>!t.sectionGid).map(t=>taskRow(t,done)).join('');
+    el.innerHTML=html||'<div style="font-size:11px;color:var(--muted);padding:6px 0">No open tasks 🎉</div>';
+  } else {
+    el.innerHTML=visible.map(t=>taskRow(t,done)).join('');
+  }
+}
+
+async function toggleTask(gid){
+  const row=document.getElementById('t'+gid);
+  if(row){row.style.transition='opacity .2s';row.style.opacity='0.3';}
+  const patEnc=localStorage.getItem('z_asana_pat');
+  if(patEnc){
+    try{
+      await fetch(`https://app.asana.com/api/1.0/tasks/${gid}`,{
+        method:'PUT',
+        headers:{'Authorization':'Bearer '+atob(patEnc),'Content-Type':'application/json'},
+        body:JSON.stringify({data:{completed:true}})
+      });
+    }catch(e){}
+  }
+  TASKS=TASKS.filter(t=>t.gid!==gid);
+  const done=JSON.parse(localStorage.getItem('z_done')||'[]');
+  if(!done.includes(gid)) done.push(gid);
+  localStorage.setItem('z_done',JSON.stringify(done));
+  renderAsana();
+}
+
+let asanaProjectsLoaded=false;
+async function loadAsanaProjects(pat){
+  if(asanaProjectsLoaded) return;
+  try{
+    const r=await fetch(`https://app.asana.com/api/1.0/projects?workspace=${ASANA_WORKSPACE}&archived=false&opt_fields=gid,name&limit=50`,{headers:{'Authorization':'Bearer '+pat}});
+    const d=await r.json();
+    if(!d.data) return;
+    const sel=document.getElementById('asana-project-select');
+    while(sel.options.length>1) sel.remove(1);
+    d.data.forEach(p=>{
+      const opt=document.createElement('option');
+      opt.value=p.gid;opt.textContent=p.name;
+      sel.appendChild(opt);
+    });
+    asanaProjectsLoaded=true;
+  }catch(e){}
+}
+
+async function loadAsanaTasks(){
+  const patEnc=localStorage.getItem('z_asana_pat');
+  if(!patEnc){renderAsana([],[]);return;}
+  const pat=atob(patEnc);
+  const el=document.getElementById('asana-list');
+  el.innerHTML='<div style="font-size:10px;color:var(--muted);font-family:\'DM Mono\',monospace;padding:4px 0">Loading…</div>';
+  CURRENT_SECTIONS=[];
+  await loadAsanaProjects(pat);
+  const projectGid=document.getElementById('asana-project-select')?.value||'';
+  try{
+    if(!projectGid){
+      const r=await fetch(`https://app.asana.com/api/1.0/tasks?assignee=me&workspace=${ASANA_WORKSPACE}&completed_since=now&opt_fields=gid,name,permalink_url&limit=30`,{headers:{'Authorization':'Bearer '+pat}});
+      const d=await r.json();
+      if(d.errors){el.innerHTML=`<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.errors[0].message}</div>`;return;}
+      renderAsana((d.data||[]).map(t=>({gid:t.gid,name:t.name,url:t.permalink_url||`https://app.asana.com/0/${ASANA_WORKSPACE}/${t.gid}`})),[]);
+    } else {
+      const sr=await fetch(`https://app.asana.com/api/1.0/projects/${projectGid}/sections?opt_fields=gid,name`,{headers:{'Authorization':'Bearer '+pat}});
+      const sd=await sr.json();
+      const sections=sd.data||[];
+      const sectionTasks=await Promise.all(sections.map(async sec=>{
+        const tr=await fetch(`https://app.asana.com/api/1.0/tasks?section=${sec.gid}&completed_since=now&opt_fields=gid,name,permalink_url&limit=50`,{headers:{'Authorization':'Bearer '+pat}});
+        const td=await tr.json();
+        return (td.data||[]).map(t=>({gid:t.gid,name:t.name,url:t.permalink_url||`https://app.asana.com/0/${ASANA_WORKSPACE}/${t.gid}`,sectionGid:sec.gid}));
+      }));
+      renderAsana(sectionTasks.flat(),sections);
+    }
+  }catch(e){
+    el.innerHTML='<div style="font-size:10px;color:var(--red);font-family:\'DM Mono\',monospace">Network error</div>';
+  }
+}
+loadAsanaTasks();
+
+function saveAsanaPat(val){
+  if(val) localStorage.setItem('z_asana_pat',btoa(val));
+  document.getElementById('asana-pat').value='';
+  document.getElementById('asana-pat').placeholder='✓ Token saved';
+  asanaProjectsLoaded=false;
+  loadAsanaTasks();
+}
+(function(){const p=localStorage.getItem('z_asana_pat');if(p) document.getElementById('asana-pat').placeholder='✓ Token saved';})();
+
+async function addTask(){
+  const input=document.getElementById('new-task-input');
+  const status=document.getElementById('add-task-status');
+  const btn=document.getElementById('add-task-btn');
+  const name=input.value.trim();
+  if(!name) return;
+  const patEnc=localStorage.getItem('z_asana_pat');
+  if(!patEnc){status.textContent='✗ Paste your Asana PAT below first';status.style.color='var(--red)';return;}
+  btn.textContent='…';btn.disabled=true;
+  try{
+    const r=await fetch('https://app.asana.com/api/1.0/tasks',{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+atob(patEnc),'Content-Type':'application/json'},
+      body:JSON.stringify({data:{name,workspace:ASANA_WORKSPACE,assignee:'me'}})
+    });
+    const d=await r.json();
+    if(d.data&&d.data.gid){
+      status.textContent='✓ Added';status.style.color='var(--green)';
+      input.value='';loadAsanaTasks();
+    } else {
+      status.textContent='✗ '+(d.errors?.[0]?.message||'Failed');status.style.color='var(--red)';
+    }
+  }catch(e){status.textContent='✗ Network error';status.style.color='var(--red)';}
+  btn.textContent='+ Add';btn.disabled=false;
+  setTimeout(()=>{status.textContent='';},3000);
+}
+
+// ── SLACK ───────────────────────────
+const CHANNELS={
+  'C0AKP4YCYAV':{name:'ops-check-in',color:'#4a80d4'},
+  'C0AKP523N9F':{name:'mktg-check-in',color:'#3a9e6a'},
+  'C0AL07ST94Y':{name:'purchase-orders',color:'#c47f17'},
+  'C0AKB520J0L':{name:'dispatch',color:'#c45050'},
+  'C0AJZ65PAQK':{name:'quotes',color:'#7b5ea7'},
+  'C08MVN2T996':{name:'missed-calls',color:'#c45050'},
+  'C02L40TCHSA':{name:'the-dream-team',color:'#3a9e6a'},
+  'C04SY841RA8':{name:'marketing',color:'#4a80d4'},
+  'C04P24YT3UY':{name:'ops-chat',color:'#4a80d4'},
+  'CCHLXU5JB':{name:'announcements',color:'#c47f17'},
+  'C07G7AQEN8P':{name:'merchandising',color:'#7b5ea7'},
+  'C06T06MKVU4':{name:'product-information',color:'#8090a8'},
+  'C0AKQT75805':{name:'sales-orders',color:'#3a9e6a'},
+};
+const CH_URLS={
+  'ops-check-in':'https://app.slack.com/client/TCGD7QVGC/C0AKP4YCYAV',
+  'mktg-check-in':'https://app.slack.com/client/TCGD7QVGC/C0AKP523N9F',
+  'purchase-orders':'https://app.slack.com/client/TCGD7QVGC/C0AL07ST94Y',
+  'dispatch':'https://app.slack.com/client/TCGD7QVGC/C0AKB520J0L',
+  'quotes':'https://app.slack.com/client/TCGD7QVGC/C0AJZ65PAQK',
+  'missed-calls':'https://app.slack.com/client/TCGD7QVGC/C08MVN2T996',
+  'the-dream-team':'https://app.slack.com/client/TCGD7QVGC/C02L40TCHSA',
+  'marketing':'https://app.slack.com/client/TCGD7QVGC/C04SY841RA8',
+  'ops-chat':'https://app.slack.com/client/TCGD7QVGC/C04P24YT3UY',
+  'announcements':'https://app.slack.com/client/TCGD7QVGC/CCHLXU5JB',
+  'merchandising':'https://app.slack.com/client/TCGD7QVGC/C07G7AQEN8P',
+  'product-information':'https://app.slack.com/client/TCGD7QVGC/C06T06MKVU4',
+  'sales-orders':'https://app.slack.com/client/TCGD7QVGC/C0AKQT75805',
+};
+const PROXY='https://zest-slack-proxy.onrender.com';
+const SEED_MSGS=[
+  {ch:'dispatch',who:'Pervez',time:'Today 4:46pm',html:'Test',color:'#c45050'},
+  {ch:'quotes',who:'Dominic',time:'Today 4:45pm',html:'QUOTE-49371 · Martellotm · $445.54 — Created on Cin7',color:'#7b5ea7'},
+  {ch:'quotes',who:'Dominic',time:'Today 4:30pm',html:'QUOTE-49370 · AWM - Seaford · $491.70 — Created on Cin7',color:'#7b5ea7'},
+  {ch:'dispatch',who:'Make.com',time:'Today 3:00pm',html:'Order 19946 Dispatched — Michelle Cassidy · $1,178 · Direct Freight',color:'#c45050'},
+  {ch:'purchase-orders',who:'Dominic',time:'Today 2:15pm',html:'PO-49367 · Emac and Lawton · $2,920.50 — Created',color:'#c47f17'},
+  {ch:'purchase-orders',who:'Dominic',time:'Today 9:45am',html:'PO-49361 · Telbix · $339.79 — Created',color:'#c47f17'},
+  {ch:'missed-calls',who:'Mas',time:'Feb 27',html:'Sorted — Cosmo',color:'#c45050'},
+  {ch:'ops-chat',who:'Mas',time:'Feb 17',html:'Container has just landed — keep an eye on phones',color:'#4a80d4'},
+];
+let feedData=[...SEED_MSGS];
+let feedPage=0;
+const PAGE=10;
+let slackOpen=false;
+
+// render channel dots (always visible)
+function renderChannelDots(){
+  const seen=new Set(feedData.map(m=>m.ch));
+  const el=document.getElementById('slack-channels');
+  el.innerHTML=[...seen].map(ch=>{
+    const cfg=Object.values(CHANNELS).find(c=>c.name===ch)||{name:ch,color:'#8090a8'};
+    const url=CH_URLS[ch]||'https://slack.com';
+    return `<a class="slack-ch-row" href="${url}" target="_blank">
+      <div class="slack-dot" style="background:${cfg.color||'#8090a8'}"></div>
+      <span class="slack-ch-name">#${ch}</span>
+    </a>`;
+  }).join('');
+}
+
+function renderFeed(){
+  const filter=(document.getElementById('slack-filter')?.value||'').toLowerCase().trim();
+  const body=m=>(m.text||m.html||m.msg||'').replace(/<[^>]+>/g,'');
+  const filtered=filter?feedData.filter(m=>m.ch.toLowerCase().includes(filter)||body(m).toLowerCase().includes(filter)):feedData;
+  const el=document.getElementById('slack-feed');
+  if(!filtered.length){el.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';return;}
+  el.innerHTML=filtered.slice(0,PAGE+feedPage*PAGE).map(m=>{
+    const rowUrl=m.url||CH_URLS[m.ch]||'https://slack.com';
+    const txt=body(m);
+    return `<a class="slack-item" href="${rowUrl}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)">
+      <div class="slack-item-dot" style="background:${m.color};flex-shrink:0;margin-top:4px"></div>
+      <div class="slack-body" style="flex:1;min-width:0">
+        <div class="slack-meta">
+          <span class="slack-ch">#${m.ch}</span>
+          <span class="slack-who">${m.who}</span>
+          <span class="slack-time">${m.time}</span>
+        </div>
+        <div class="slack-msg">${txt}</div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
+function toggleSlack(){
+  slackOpen=!slackOpen;
+  document.getElementById('slack-feed-wrap').classList.toggle('open',slackOpen);
+  document.getElementById('slack-toggle-btn').textContent=slackOpen?'Hide ↑':'Show feed ↓';
+  if(slackOpen) renderFeed();
+}
+
+async function liveRefresh(){
+  try{
+    const r=await fetch(PROXY+'/feed');
+    const d=await r.json();
+    if(d.ok&&d.messages&&d.messages.length){
+      feedData=d.messages;
+      renderChannelDots();
+      if(slackOpen) renderFeed();
+      return true;
+    }
+  }catch(e){}
+  return false;
+}
+
+function doRefresh(){
+  const btn=document.getElementById('refresh-btn');
+  btn.textContent='⏳';btn.disabled=true;
+  liveRefresh().then(ok=>{
+    btn.textContent=ok?'✓':'✗';
+    setTimeout(()=>{btn.textContent='↻';btn.disabled=false;},1500);
+  });
+}
+
+renderChannelDots();
+liveRefresh();
+setInterval(liveRefresh,60000);
+
+// ── SCRATCHPAD ──────────────────────
+function saveScratch(){
+  localStorage.setItem('zsc',document.getElementById('scratch').value);
+  const b=document.querySelector('.btn-s');const o=b.textContent;b.textContent='✓';setTimeout(()=>b.textContent=o,1200);
+}
+document.getElementById('scratch').value=localStorage.getItem('zsc')||'';
+</script>
+</body>
+</html>
