@@ -211,7 +211,10 @@ textarea.inp{resize:none;height:90px;line-height:1.6;font-size:12px}
           <button class="btn-s" id="add-task-btn" onclick="addTask()" style="padding:5px 10px">+ Add</button>
         </div>
         <div id="add-task-status" style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;min-height:11px"></div>
-        <div class="pat-row">PAT: <input class="pat-inp" id="asana-pat" type="password" placeholder="paste once to enable…" onchange="saveAsanaPat(this.value)"></div>
+        <div style="margin-top:6px;text-align:right">
+          <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.06em">⚙ settings</button>
+          <div style="display:none;margin-top:5px" class="pat-row">PAT: <input class="pat-inp" id="asana-pat" type="password" placeholder="paste once to enable…" onchange="saveAsanaPat(this.value)"></div>
+        </div>
       </div>
 
       <!-- QUICK ACTIONS -->
@@ -240,8 +243,9 @@ textarea.inp{resize:none;height:90px;line-height:1.6;font-size:12px}
           <a class="card-link" href="https://calendar.google.com" target="_blank">Open →</a>
         </div>
         <div id="cal-events"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">Loading…</div></div>
-        <div class="pat-row" style="margin-top:10px">
-          API Key: <input class="pat-inp" id="gcal-key" type="password" placeholder="paste once to enable…" onchange="saveGcalKey(this.value)">
+        <div style="margin-top:8px;text-align:right">
+          <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.06em">⚙ settings</button>
+          <div style="display:none;margin-top:5px" class="pat-row">API Key: <input class="pat-inp" id="gcal-key" type="password" placeholder="paste once to enable…" onchange="saveGcalKey(this.value)"></div>
         </div>
       </div>
 
@@ -691,22 +695,26 @@ function saveGcalKey(val){
 (function(){ if(localStorage.getItem('z_gcal_key')) document.getElementById('gcal-key').placeholder = '✓ Key saved'; })();
 
 function fmtEventTime(event){
+  // get today's date string in Sydney local time for comparison
+  const sydneyNow = new Date(new Date().toLocaleString('en-AU', {timeZone:'Australia/Sydney'}));
+  const todayStr = sydneyNow.getFullYear()+'-'+String(sydneyNow.getMonth()+1).padStart(2,'0')+'-'+String(sydneyNow.getDate()).padStart(2,'0');
+  const tomorrowDate = new Date(sydneyNow); tomorrowDate.setDate(tomorrowDate.getDate()+1);
+  const tomorrowStr = tomorrowDate.getFullYear()+'-'+String(tomorrowDate.getMonth()+1).padStart(2,'0')+'-'+String(tomorrowDate.getDate()).padStart(2,'0');
+
   if(event.start.date){
-    // all-day event
-    const d = new Date(event.start.date + 'T00:00:00');
-    const today = new Date(); today.setHours(0,0,0,0);
-    const diff = Math.round((d - today) / 86400000);
-    if(diff === 0) return 'Today · All day';
-    if(diff === 1) return 'Tomorrow · All day';
+    const ds = event.start.date;
+    if(ds === todayStr) return 'Today · All day';
+    if(ds === tomorrowStr) return 'Tomorrow · All day';
+    const d = new Date(ds+'T00:00:00');
     return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) + ' · All day';
   }
   const start = new Date(event.start.dateTime);
-  const today = new Date(); today.setHours(0,0,0,0);
-  const diff = Math.round((start - today) / 86400000);
-  const timeStr = start.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true});
-  if(diff === 0) return 'Today · ' + timeStr;
-  if(diff === 1) return 'Tomorrow · ' + timeStr;
-  return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'}) + ' · ' + timeStr;
+  const startSydney = new Date(start.toLocaleString('en-AU', {timeZone:'Australia/Sydney'}));
+  const startStr = startSydney.getFullYear()+'-'+String(startSydney.getMonth()+1).padStart(2,'0')+'-'+String(startSydney.getDate()).padStart(2,'0');
+  const timeStr = start.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Australia/Sydney'});
+  if(startStr === todayStr) return 'Today · ' + timeStr;
+  if(startStr === tomorrowStr) return 'Tomorrow · ' + timeStr;
+  return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:'Australia/Sydney'}) + ' · ' + timeStr;
 }
 
 async function loadCalendarEvents(){
@@ -717,12 +725,13 @@ async function loadCalendarEvents(){
     return;
   }
   const key = atob(keyEnc);
-  const now = new Date().toISOString();
+  const todaySydney = new Date(new Date().toLocaleString('en-AU', {timeZone:'Australia/Sydney'}));
+  todaySydney.setHours(0,0,0,0);
+  const now = todaySydney.toISOString();
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?key=${key}&timeMin=${now}&maxResults=3&singleEvents=true&orderBy=startTime`;
   try {
     const r = await fetch(url);
     const d = await r.json();
-    console.log('GCAL RAW:', JSON.stringify(d).slice(0, 500));
     if(d.error){
       el.innerHTML = `<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.error.message}</div>`;
       return;
