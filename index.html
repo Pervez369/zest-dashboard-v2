@@ -725,9 +725,7 @@ async function loadCalendarEvents(){
     return;
   }
   const key = atob(keyEnc);
-  const todaySydney = new Date(new Date().toLocaleString('en-AU', {timeZone:'Australia/Sydney'}));
-  todaySydney.setHours(0,0,0,0);
-  const now = todaySydney.toISOString();
+  const now = new Date().toISOString();
   const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?key=${key}&timeMin=${now}&maxResults=3&singleEvents=true&orderBy=startTime`;
   try {
     const r = await fetch(url);
