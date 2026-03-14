@@ -722,6 +722,7 @@ async function loadCalendarEvents(){
   try {
     const r = await fetch(url);
     const d = await r.json();
+    console.log('GCAL RAW:', JSON.stringify(d).slice(0, 500));
     if(d.error){
       el.innerHTML = `<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.error.message}</div>`;
       return;
