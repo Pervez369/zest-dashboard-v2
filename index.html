@@ -16,9 +16,9 @@
   --surf2:  #333842;
   --bdr:    rgba(255,255,255,0.07);
   --bdr2:   rgba(255,255,255,0.13);
-  --text:   #e8e6e1;
-  --muted:  #7a8090;
-  --muted2: #a0a8b8;
+  --text:   #f0eeea;
+  --muted:  #9aa2b2;
+  --muted2: #c8d0de;
   --gold:   #c47f17;
   --gold-l: #d4920a;
   --gold-s: rgba(196,127,23,0.12);
@@ -230,13 +230,20 @@ textarea.inp{resize:none;height:90px;line-height:1.6;font-size:12px}
       </div>
     </div>
 
-    <!-- SCRATCHPAD -->
-    <div class="card">
-      <div class="card-label">
-        <span>🗒️ Scratchpad</span>
-        <button class="btn-s" onclick="saveScratch()">Save</button>
+    <!-- CALENDAR -->
+    <div class="card" style="padding:0;overflow:hidden">
+      <div class="card-label" style="padding:14px 16px 0">
+        <span>📅 Calendar</span>
+        <a class="card-link" href="https://calendar.google.com" target="_blank">Open →</a>
       </div>
-      <textarea class="inp" id="scratch" placeholder="Notes, ideas, follow-ups…"></textarea>
+      <div style="overflow:hidden;height:260px;position:relative;margin-top:8px">
+        <iframe
+          src="https://calendar.google.com/calendar/embed?src=pervez%40zestlighting.com.au&ctz=Australia%2FSydney&showTitle=0&showNav=1&showPrint=0&showTabs=0&showCalendars=0&showTz=0&mode=AGENDA&bgcolor=%2322252b"
+          style="width:143%;height:372px;border:none;display:block;transform:scale(0.7);transform-origin:top left;pointer-events:auto;filter:invert(1) hue-rotate(180deg)"
+          frameborder="0"
+          scrolling="no">
+        </iframe>
+      </div>
     </div>
 
   </div>
@@ -612,12 +619,8 @@ renderChannelDots();
 liveRefresh();
 setInterval(liveRefresh,60000);
 
-// ── SCRATCHPAD ──────────────────────
-function saveScratch(){
-  localStorage.setItem('zsc',document.getElementById('scratch').value);
-  const b=document.querySelector('.btn-s');const o=b.textContent;b.textContent='✓';setTimeout(()=>b.textContent=o,1200);
-}
-document.getElementById('scratch').value=localStorage.getItem('zsc')||'';
+// ── CALENDAR ────────────────────────
+// Rendered via Google Calendar iframe embed
 </script>
 </body>
 </html>
