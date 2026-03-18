@@ -471,8 +471,20 @@ function toggleSlack(){
   if(slackOpen) renderFeed();
 }
 
+// Channels that should always appear in the dots even if the proxy returns nothing for them
+const PINNED_CHANNELS=['daily-summaries'];
+
 async function liveRefresh(){
-  try{const r=await fetch(PROXY+'/feed');const d=await r.json();if(d.ok&&d.messages&&d.messages.length){feedData=d.messages;renderChannelDots();if(slackOpen)renderFeed();return true;}}catch(e){}
+  try{
+    const r=await fetch(PROXY+'/feed');const d=await r.json();
+    if(d.ok&&d.messages&&d.messages.length){
+      // Keep any seed/pinned messages for channels not covered by the proxy response
+      const proxyChs=new Set(d.messages.map(m=>m.ch));
+      const kept=feedData.filter(m=>PINNED_CHANNELS.includes(m.ch)&&!proxyChs.has(m.ch));
+      feedData=[...d.messages,...kept];
+      renderChannelDots();if(slackOpen)renderFeed();return true;
+    }
+  }catch(e){}
   return false;
 }
 
