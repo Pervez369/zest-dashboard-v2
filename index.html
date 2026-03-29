@@ -282,33 +282,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
     <!-- Stacked panels: Drive + Scratchpad -->
     <div class="side-panels">
 
-      <!-- GOOGLE DRIVE -->
+      <!-- GOOGLE DRIVE QUICK LINKS -->
       <div class="side-panel side-panel-drive">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
           <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">📁 Drive</span>
-          <div style="display:flex;gap:6px;align-items:center" id="drive-header-actions"></div>
+          <a href="https://drive.google.com" target="_blank" style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);text-decoration:none;transition:color .12s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">Open →</a>
         </div>
-        <div class="drive-wrap" style="padding:12px 16px;gap:8px">
-          <div id="drive-setup-area" style="display:none;flex:1;flex-direction:column">
-            <div class="drive-setup">
-              <div class="drive-setup-icon">📁</div>
-              <div class="drive-setup-text">Paste your Google API key to browse Drive.<br>Same key as Calendar. Stored locally.</div>
-              <div class="drive-key-row">
-                <input class="drive-key-inp" id="drive-key-inp" type="password" placeholder="Google API key…">
-                <button class="btn-s" onclick="saveDriveKey()" style="padding:5px 10px">Save</button>
-              </div>
-            </div>
-          </div>
-          <div id="drive-main-area" style="display:none;flex:1;flex-direction:column;gap:8px;overflow:hidden;min-height:0">
-            <div style="display:flex;gap:6px;flex-shrink:0">
-              <input class="drive-search" id="drive-search" placeholder="Search Drive…" oninput="debounceDriveSearch()">
-              <button class="btn-s" onclick="clearDriveKey()" title="Change key" style="padding:4px 8px;font-size:10px">⚙</button>
-            </div>
-            <div class="drive-breadcrumb" id="drive-breadcrumb"></div>
-            <div class="drive-list" id="drive-list" style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent;display:flex;flex-direction:column;gap:2px">
-              <div class="drive-loading">Loading…</div>
-            </div>
-          </div>
+        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1">
+          <a class="ql-a" href="https://drive.google.com/drive/my-drive" target="_blank"><span class="qi">🏠</span> My Drive <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://drive.google.com/drive/recent" target="_blank"><span class="qi">🕐</span> Recent <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://drive.google.com/drive/shared-with-me" target="_blank"><span class="qi">👥</span> Shared with me <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://drive.google.com/drive/starred" target="_blank"><span class="qi">⭐</span> Starred <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://docs.new" target="_blank"><span class="qi"><img src="https://www.gstatic.com/images/branding/product/1x/docs_2020q4_32dp.png" width="13" height="13" style="vertical-align:middle"></span> New Doc <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://sheets.new" target="_blank"><span class="qi"><img src="https://www.gstatic.com/images/branding/product/1x/sheets_2020q4_32dp.png" width="13" height="13" style="vertical-align:middle"></span> New Sheet <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://slides.new" target="_blank"><span class="qi"><img src="https://www.gstatic.com/images/branding/product/1x/slides_2020q4_32dp.png" width="13" height="13" style="vertical-align:middle"></span> New Slides <span class="ql-arr">→</span></a>
         </div>
       </div>
 
@@ -374,9 +361,6 @@ focusInput.addEventListener('input',()=>{localStorage.setItem('z_focus',focusInp
 if(focusInput.value) focusSaved.textContent='✓ saved';
 function clearFocus(){focusInput.value='';localStorage.removeItem('z_focus');focusSaved.textContent='';focusInput.focus();}
 
-// ══ DRIVE AUTO-INIT ══
-let driveKey='',driveStack=[{id:'root',name:'My Drive'}],driveSearchTimer=null;
-initDrive();
 
 // ══ KEEP-STYLE NOTES ══
 const KEEP_COLORS=[
@@ -482,139 +466,6 @@ renderKeep();
 
 // ══ GOOGLE DRIVE ══
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function initDrive(){
-  const enc=localStorage.getItem('z_drive_key');
-  if(enc){driveKey=atob(enc);showDriveMain();loadDriveFolder('root');}
-  else showDriveSetup();
-}
-
-function showDriveSetup(){
-  document.getElementById('drive-setup-area').style.display='flex';
-  document.getElementById('drive-main-area').style.display='none';
-}
-function showDriveMain(){
-  document.getElementById('drive-setup-area').style.display='none';
-  document.getElementById('drive-main-area').style.display='flex';
-}
-
-function saveDriveKey(){
-  const val=document.getElementById('drive-key-inp').value.trim();
-  if(!val)return;
-  driveKey=val;
-  localStorage.setItem('z_drive_key',btoa(val));
-  document.getElementById('drive-key-inp').value='';
-  showDriveMain();
-  loadDriveFolder('root');
-}
-
-function clearDriveKey(){
-  if(!confirm('Remove saved API key?'))return;
-  localStorage.removeItem('z_drive_key');
-  driveKey='';driveStack=[{id:'root',name:'My Drive'}];
-  showDriveSetup();
-}
-
-function renderBreadcrumb(){
-  const el=document.getElementById('drive-breadcrumb');
-  el.innerHTML=driveStack.map((s,i)=>`
-    <span class="drive-bc-item" onclick="driveNavTo(${i})">${s.name}</span>
-    ${i<driveStack.length-1?'<span class="drive-bc-sep">/</span>':''}
-  `).join('');
-}
-
-function driveNavTo(idx){
-  driveStack=driveStack.slice(0,idx+1);
-  renderBreadcrumb();
-  loadDriveFolder(driveStack[driveStack.length-1].id);
-}
-
-const MIME_ICONS={
-  'application/vnd.google-apps.folder':'📁',
-  'application/vnd.google-apps.document':'📄',
-  'application/vnd.google-apps.spreadsheet':'📊',
-  'application/vnd.google-apps.presentation':'📑',
-  'application/vnd.google-apps.form':'📋',
-  'application/pdf':'📕',
-  'image/jpeg':'🖼️','image/png':'🖼️','image/gif':'🖼️',
-  'video/mp4':'🎬','video/quicktime':'🎬',
-  'audio/mpeg':'🎵',
-  'application/zip':'🗜️',
-};
-function mimeIcon(mime){return MIME_ICONS[mime]||'📎';}
-
-function fmtDate(iso){
-  if(!iso)return'';
-  const d=new Date(iso);
-  const today=new Date();
-  const diff=Math.floor((today-d)/86400000);
-  if(diff===0)return'Today';if(diff===1)return'Yesterday';
-  if(diff<7)return diff+'d ago';
-  return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});
-}
-
-async function loadDriveFolder(folderId){
-  const list=document.getElementById('drive-list');
-  list.innerHTML='<div class="drive-loading">Loading…</div>';
-  renderBreadcrumb();
-  document.getElementById('drive-search').value='';
-  const q=folderId==='root'?`'root' in parents`:`'${folderId}' in parents`;
-  const url=`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q+" and trashed=false")}&orderBy=folder,name&fields=files(id,name,mimeType,modifiedTime,webViewLink,iconLink)&pageSize=50&key=${driveKey}`;
-  try{
-    const r=await fetch(url);const d=await r.json();
-    if(d.error){list.innerHTML=`<div class="drive-loading" style="color:var(--red)">${d.error.message}</div>`;return;}
-    renderDriveItems(d.files||[]);
-  }catch(e){list.innerHTML='<div class="drive-loading" style="color:var(--red)">Network error</div>';}
-}
-
-async function driveSearch(q){
-  if(!q.trim()){loadDriveFolder(driveStack[driveStack.length-1].id);return;}
-  const list=document.getElementById('drive-list');
-  list.innerHTML='<div class="drive-loading">Searching…</div>';
-  const query=`name contains '${q.replace(/'/g,"\\'")}' and trashed=false`;
-  const url=`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=30&key=${driveKey}`;
-  try{
-    const r=await fetch(url);const d=await r.json();
-    if(d.error){list.innerHTML=`<div class="drive-loading" style="color:var(--red)">${d.error.message}</div>`;return;}
-    renderDriveItems(d.files||[],true);
-  }catch(e){list.innerHTML='<div class="drive-loading" style="color:var(--red)">Network error</div>';}
-}
-
-function renderDriveItems(files,isSearch=false){
-  const list=document.getElementById('drive-list');
-  if(!files.length){list.innerHTML='<div class="drive-loading">No files found</div>';return;}
-  const folders=files.filter(f=>f.mimeType==='application/vnd.google-apps.folder');
-  const rest=files.filter(f=>f.mimeType!=='application/vnd.google-apps.folder');
-  let html='';
-  if(folders.length&&!isSearch){html+=`<div class="drive-section-label">Folders</div>`;}
-  html+=folders.map(f=>driveItemHtml(f)).join('');
-  if(rest.length&&folders.length&&!isSearch){html+=`<div class="drive-section-label" style="margin-top:8px">Files</div>`;}
-  html+=rest.map(f=>driveItemHtml(f)).join('');
-  list.innerHTML=html;
-}
-
-function driveItemHtml(f){
-  const isFolder=f.mimeType==='application/vnd.google-apps.folder';
-  const icon=mimeIcon(f.mimeType);
-  const onclick=isFolder?`driveOpen('${f.id}','${escHtml(f.name)}')`:`window.open('${f.webViewLink}','_blank')`;
-  return `<div class="drive-item" onclick="${onclick}" title="${escHtml(f.name)}">
-    <div class="drive-icon">${icon}</div>
-    <div class="drive-info">
-      <div class="drive-name">${escHtml(f.name)}</div>
-      <div class="drive-meta">${fmtDate(f.modifiedTime)}</div>
-    </div>
-    <div class="drive-arr">${isFolder?'›':'↗'}</div>
-  </div>`;
-}
-
-function driveOpen(id,name){
-  driveStack.push({id,name});
-  loadDriveFolder(id);
-}
-
-function debounceDriveSearch(){
-  clearTimeout(driveSearchTimer);
-  driveSearchTimer=setTimeout(()=>driveSearch(document.getElementById('drive-search').value),350);
-}
 
 // ══ ASANA ══
 const ASANA_WORKSPACE='447722705768120';
