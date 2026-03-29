@@ -233,10 +233,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
           <a class="card-link" href="https://calendar.google.com" target="_blank">Open →</a>
         </div>
         <div id="cal-events"><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)">Loading…</div></div>
-        <div style="margin-top:8px;text-align:right">
-          <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.06em">⚙ settings</button>
-          <div style="display:none;margin-top:5px" class="pat-row">API Key: <input class="pat-inp" id="gcal-key" type="password" placeholder="paste once to enable…" onchange="saveGcalKey(this.value)"></div>
-        </div>
       </div>
       <div class="card" style="display:flex;flex-direction:column;justify-content:space-between">
         <div class="card-label">
@@ -677,10 +673,109 @@ function nextQuote(){quoteIndex=(quoteIndex+1)%QUOTES.length;showQuote(quoteInde
 const doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
 quoteIndex=doy%QUOTES.length;showQuote(quoteIndex);
 
-// ══ GOOGLE CALENDAR ══
+// ══ GOOGLE CALENDAR (OAuth) ══
 const GCAL_EMAIL='pervez@zestlighting.com.au';
-function saveGcalKey(val){if(val)localStorage.setItem('z_gcal_key',btoa(val));document.getElementById('gcal-key').value='';document.getElementById('gcal-key').placeholder='✓ Key saved';loadCalendarEvents();}
-(function(){if(localStorage.getItem('z_gcal_key'))document.getElementById('gcal-key').placeholder='✓ Key saved';})();
+const GCAL_CLIENT_ID='418559941075-0uaecbcq9ohe61j7q4g0t4c9femppom6.apps.googleusercontent.com';
+const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
+let gcalToken=null;
+
+function initGcal(){
+  // Load Google Identity Services script
+  const s=document.createElement('script');
+  s.src='https://accounts.google.com/gsi/client';
+  s.onload=()=>tryAutoSignIn();
+  document.head.appendChild(s);
+}
+
+function tryAutoSignIn(){
+  const saved=localStorage.getItem('z_gcal_token');
+  if(saved){
+    gcalToken=JSON.parse(saved);
+    if(gcalToken.expires_at&&Date.now()<gcalToken.expires_at){
+      loadCalendarEvents();
+      scheduleTokenRefresh();
+      return;
+    }
+  }
+  // Try silent refresh first
+  silentRefresh();
+}
+
+function silentRefresh(){
+  if(typeof google==='undefined'){showGcalSignIn();return;}
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:GCAL_CLIENT_ID,
+    scope:GCAL_SCOPE,
+    prompt:'',
+    callback:(resp)=>{
+      if(resp.error||!resp.access_token){showGcalSignIn();return;}
+      gcalToken={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};
+      localStorage.setItem('z_gcal_token',JSON.stringify(gcalToken));
+      loadCalendarEvents();
+      scheduleTokenRefresh();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function scheduleTokenRefresh(){
+  if(!gcalToken)return;
+  const msUntilExpiry=gcalToken.expires_at-Date.now()-60000;
+  if(msUntilExpiry>0) setTimeout(silentRefresh, msUntilExpiry);
+}
+
+function showGcalSignIn(){
+  const el=document.getElementById('cal-events');
+  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;padding:4px 0">
+    <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Sign in to see your calendar</div>
+    <button onclick="gcalSignIn()" style="display:flex;align-items:center;gap:6px;background:var(--surf);border:1px solid var(--bdr2);border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;transition:all .12s;width:fit-content" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background='var(--surf)'">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="14" height="14">
+      Sign in with Google
+    </button>
+  </div>`;
+}
+
+function gcalSignIn(){
+  const client=google.accounts.oauth2.initTokenClient({
+    client_id:GCAL_CLIENT_ID,
+    scope:GCAL_SCOPE,
+    callback:(resp)=>{
+      if(resp.error){console.error(resp);return;}
+      gcalToken={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};
+      localStorage.setItem('z_gcal_token',JSON.stringify(gcalToken));
+      loadCalendarEvents();
+    }
+  });
+  client.requestAccessToken();
+}
+
+function saveGcalKey(val){
+  // Legacy — ignore, kept so old settings input doesn't break
+}
+
+async function loadCalendarEvents(){
+  const el=document.getElementById('cal-events');
+  if(!gcalToken||Date.now()>=gcalToken.expires_at){
+    showGcalSignIn();return;
+  }
+  const now=new Date().toISOString();
+  const url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?timeMin=${now}&maxResults=5&singleEvents=true&orderBy=startTime`;
+  try{
+    const r=await fetch(url,{headers:{'Authorization':'Bearer '+gcalToken.access_token}});
+    const d=await r.json();
+    if(d.error){
+      if(d.error.code===401){localStorage.removeItem('z_gcal_token');gcalToken=null;showGcalSignIn();return;}
+      el.innerHTML=`<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.error.message}</div>`;return;
+    }
+    const items=d.items||[];
+    if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0">No upcoming events 🎉</div>';return;}
+    el.innerHTML=items.map(ev=>`<a href="${ev.htmlLink}" target="_blank" style="display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:1px solid var(--bdr);text-decoration:none" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'">
+      <div style="font-size:12px;font-weight:500;color:var(--text);font-family:'Epilogue',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.summary||'🔒 Private event'}</div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.04em">${fmtEventTime(ev)}</div>
+    </a>`).join('');
+  }catch(e){el.innerHTML='<div style="font-size:10px;color:var(--red);font-family:\'DM Mono\',monospace">Network error</div>';}
+}
+
 function fmtEventTime(event){
   const sydneyNow=new Date(new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
   const todayStr=sydneyNow.getFullYear()+'-'+String(sydneyNow.getMonth()+1).padStart(2,'0')+'-'+String(sydneyNow.getDate()).padStart(2,'0');
@@ -695,20 +790,9 @@ function fmtEventTime(event){
   if(startStr===tomorrowStr)return 'Tomorrow · '+timeStr;
   return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:'Australia/Sydney'})+' · '+timeStr;
 }
-async function loadCalendarEvents(){
-  const keyEnc=localStorage.getItem('z_gcal_key');const el=document.getElementById('cal-events');
-  if(!keyEnc){el.innerHTML='<div style="font-size:11px;color:var(--muted)">Paste your Google API key below to enable</div>';return;}
-  const key=atob(keyEnc),now=new Date().toISOString();
-  const url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?key=${key}&timeMin=${now}&maxResults=3&singleEvents=true&orderBy=startTime`;
-  try{
-    const r=await fetch(url);const d=await r.json();
-    if(d.error){el.innerHTML=`<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.error.message}</div>`;return;}
-    const items=d.items||[];
-    if(!items.length){el.innerHTML='<div style="font-size:12px;color:var(--muted);padding:4px 0">No upcoming events 🎉</div>';return;}
-    el.innerHTML=items.map(ev=>`<a href="${ev.htmlLink}" target="_blank" style="display:flex;flex-direction:column;gap:3px;padding:9px 0;border-bottom:1px solid var(--bdr);text-decoration:none" onmouseover="this.style.opacity='.75'" onmouseout="this.style.opacity='1'"><div style="font-size:12px;font-weight:500;color:var(--text);font-family:'Epilogue',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${ev.summary||'Untitled event'}</div><div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--gold);letter-spacing:.04em">${fmtEventTime(ev)}</div></a>`).join('');
-  }catch(e){el.innerHTML='<div style="font-size:10px;color:var(--red);font-family:\'DM Mono\',monospace">Network error</div>';}
-}
-loadCalendarEvents();setInterval(loadCalendarEvents,5*60*1000);
+
+initGcal();
+setInterval(()=>{if(gcalToken&&Date.now()<gcalToken.expires_at)loadCalendarEvents();},5*60*1000);
 </script>
 </body>
 </html>
