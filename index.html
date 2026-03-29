@@ -375,6 +375,7 @@ if(focusInput.value) focusSaved.textContent='✓ saved';
 function clearFocus(){focusInput.value='';localStorage.removeItem('z_focus');focusSaved.textContent='';focusInput.focus();}
 
 // ══ DRIVE AUTO-INIT ══
+let driveKey='',driveStack=[{id:'root',name:'My Drive'}],driveSearchTimer=null;
 initDrive();
 
 // ══ KEEP-STYLE NOTES ══
@@ -481,7 +482,6 @@ renderKeep();
 
 // ══ GOOGLE DRIVE ══
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-let driveKey='',driveStack=[{id:'root',name:'My Drive'}],driveSearchTimer=null;
 function initDrive(){
   const enc=localStorage.getItem('z_drive_key');
   if(enc){driveKey=atob(enc);showDriveMain();loadDriveFolder('root');}
