@@ -15,7 +15,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;height:52px;border-bottom:1px solid var(--bdr);flex-shrink:0}
 .content{display:grid;grid-template-columns:1fr 380px;gap:0;overflow:hidden;height:100%}
 .col-main{display:flex;flex-direction:column;padding:28px 24px 24px 28px;gap:18px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
-.col-side{border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.col-side{border-left:1px solid var(--bdr);display:flex;flex-direction:column;overflow:hidden}
 .tb-left{display:flex;align-items:baseline;gap:14px}
 .tb-greeting{font-family:'Epilogue',sans-serif;font-size:15px;font-weight:500;color:var(--text);letter-spacing:-.2px}
 .tb-date{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em}
@@ -61,17 +61,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .ql-a:hover{background:var(--surf);color:var(--text);border-color:var(--bdr)}
 .ql-a .qi{width:16px;text-align:center;flex-shrink:0;font-size:13px}
 .ql-arr{margin-left:auto;color:var(--muted);font-size:10px;opacity:.5}
-.side-section{padding:20px;border-bottom:1px solid var(--bdr)}
-.side-section:last-child{border-bottom:none}
-.side-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+/* ── SIDE PANEL ── */
+.side-weather{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--bdr);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0}
+.wx-temp{font-size:13px;font-weight:500;color:var(--muted2)}
+
+/* Slack */
+.side-slack{padding:14px 20px;border-bottom:1px solid var(--bdr);flex-shrink:0}
+.slack-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px}
+.slack-head-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
 .slack-expand-btn{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.06em;transition:color .12s;padding:0}
 .slack-expand-btn:hover{color:var(--gold)}
 .slack-channels{display:flex;flex-direction:column;gap:2px}
-.slack-ch-row{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:6px;text-decoration:none;transition:background .12s}
+.slack-ch-row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;text-decoration:none;transition:background .12s}
 .slack-ch-row:hover{background:var(--surf)}
 .slack-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
 .slack-ch-name{font-size:11px;color:var(--muted2);flex:1}
-.slack-ch-row:hover .slack-ch-name{color:var(--text)}
 .slack-feed-wrap{margin-top:10px;display:none}
 .slack-feed-wrap.open{display:block}
 .slack-filter-row{display:flex;gap:6px;margin-bottom:8px}
@@ -84,23 +89,71 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .slack-msg{font-size:11px;color:var(--muted2);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:4px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.weather-strip{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--bdr);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
-.wx-temp{font-size:13px;font-weight:500;color:var(--muted2)}
-.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:3px}
-.tool-a{display:flex;align-items:center;gap:7px;padding:6px 8px;border-radius:6px;text-decoration:none;color:var(--muted2);font-size:11px;transition:all .12s;border:1px solid transparent}
-.tool-a:hover{background:var(--surf);color:var(--text);border-color:var(--bdr)}
-.tool-a.hidden{display:none}
-/* tools search */
-.tools-search-wrap{margin-bottom:10px;position:relative}
-.tools-search{width:100%;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:5px 10px 5px 28px;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;outline:none;transition:border-color .12s}
-.tools-search:focus{border-color:var(--gold)}
-.tools-search::placeholder{color:var(--muted)}
-.tools-search-icon{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;pointer-events:none;opacity:.45}
-.tools-empty{display:none;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:6px 0}
+
+/* ── STACKED PANELS ── */
+.side-panels{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.side-panel{display:flex;flex-direction:column;overflow:hidden;min-height:0}
+.side-panel-drive{flex:0 0 52%;border-bottom:1px solid var(--bdr)}
+.side-panel-scratch{flex:1}
+
+/* ── SCRATCHPAD ── */
+.scratch-wrap{flex:1;display:flex;flex-direction:column;padding:16px 20px;gap:10px;overflow:hidden}
+.scratch-toolbar{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.scratch-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.scratch-actions{display:flex;gap:6px;align-items:center}
+.scratch-saved{font-family:'DM Mono',monospace;font-size:8px;color:var(--green);transition:opacity .3s}
+.scratch-ta{flex:1;width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px;color:var(--text);font-size:12px;font-family:'Epilogue',sans-serif;line-height:1.65;resize:none;outline:none;transition:border-color .15s;min-height:0}
+.scratch-ta:focus{border-color:rgba(196,127,23,.35)}
+.scratch-ta::placeholder{color:var(--muted)}
+.scratch-footer{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.char-count{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
+.btn-ghost{background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:5px;padding:3px 8px;font-size:8.5px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .12s;letter-spacing:.04em}
+.btn-ghost:hover{border-color:var(--bdr2);color:var(--muted2)}
+.btn-ghost.danger:hover{border-color:var(--red);color:var(--red)}
+
+
+
+/* ── GOOGLE DRIVE ── */
+.drive-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:16px 20px;gap:12px}
+.drive-search-row{display:flex;gap:6px;flex-shrink:0}
+.drive-search{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;outline:none;transition:border-color .12s}
+.drive-search:focus{border-color:var(--gold)}
+.drive-search::placeholder{color:var(--muted)}
+.drive-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent;display:flex;flex-direction:column;gap:2px}
+.drive-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;text-decoration:none;transition:background .12s;cursor:pointer;border:1px solid transparent}
+.drive-item:hover{background:var(--surf);border-color:var(--bdr)}
+.drive-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
+.drive-info{flex:1;min-width:0}
+.drive-name{font-size:11.5px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .12s}
+.drive-item:hover .drive-name{color:var(--text)}
+.drive-meta{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);margin-top:1px}
+.drive-arr{font-size:10px;color:var(--muted);opacity:.4;flex-shrink:0}
+.drive-section-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 4px 4px;border-bottom:1px solid var(--bdr);margin-bottom:2px}
+.drive-setup{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;text-align:center;padding:20px}
+.drive-setup-icon{font-size:36px;opacity:.3}
+.drive-setup-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6}
+.drive-key-row{display:flex;gap:6px;width:100%}
+.drive-key-inp{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;color:var(--text);font-size:11px;font-family:'DM Mono',monospace;outline:none;transition:border-color .12s}
+.drive-key-inp:focus{border-color:var(--gold)}
+.drive-key-inp::placeholder{color:var(--muted)}
+.drive-breadcrumb{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0;flex-wrap:wrap}
+.drive-bc-item{cursor:pointer;transition:color .12s}
+.drive-bc-item:hover{color:var(--gold)}
+.drive-bc-sep{opacity:.3}
+.drive-loading{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:20px;text-align:center}
+
+.keep-card{border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border-color .13s,box-shadow .13s;position:relative}
+.keep-card:hover{border-color:var(--bdr2);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+.keep-card-title{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;flex:1}
+.keep-card-body{font-size:11px;color:var(--muted2);line-height:1.5;margin-top:5px;white-space:pre-wrap;word-break:break-word}
+.keep-card-date{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-top:8px}
+.keep-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:10px;opacity:0;transition:opacity .12s;padding:0;line-height:1;flex-shrink:0}
+.keep-card:hover .keep-del{opacity:.6}
+.keep-del:hover{opacity:1 !important;color:var(--red)}
+.kabul-row{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-left:10px}
 .pat-row{margin-top:8px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
 .pat-inp{background:transparent;border:none;border-bottom:1px solid var(--bdr);color:var(--muted2);font-size:8px;font-family:'DM Mono',monospace;width:150px;outline:none}
 .pat-inp::placeholder{color:var(--muted)}
-.kabul-row{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-left:10px}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:2px}
 </style>
@@ -162,7 +215,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
       <div class="card">
         <div class="card-label">⚡ Quick Actions</div>
         <div class="ql">
-          <a class="ql-a" href="https://reporting.xero.com/!QNyMT/v1/Run/15087134?isCustom=True" target="_blank"><span class="qi"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Xero P&amp;L <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://login.xero.com/identity/connect/authorize?client_id=xero_reporting_hybrid-web&redirect_uri=https%3A%2F%2Freporting.xero.com%2Fsignin-oidc&response_mode=form_post&response_type=code%20id_token&scope=xero_all-apis%20openid%20email%20profile&state=OpenIdConnect.AuthenticationProperties%3D6P8R5zF4DguDvJSAT3aE5aBRtUlT4RKnhwsVTYpELwo91Y-qBrHFsDm-1AQ3eFBpLy6HoRklrMe-I9vsh0AJOVwqSewriFNINXGloCEIJNa-5EFbwqTOQspHBrSKlOivZmoHZhDOCoafFGFnB_LJYP0sAOncC3Rtszco8h3k9KFqs-q_rfFvaK-RHJmETetqMQFoAmoL699o-SiQy7SYvuwQrMcYF-cX1shu2VjPYRYXAohm1DQOg-mRVf3cOZ7h-dvVZP68F9S4s47tI6goSA&nonce=639089119749575882.MmMwNGU5MmUtYWUyZS00MGVlLTllZTQtOTEzYWUxYWM4ZjA5MWM5NzU3NDktZmExNy00OGM4LTk0YzUtNmYwYTFlNjUwZDJm&x-client-SKU=ID_NET451&x-client-ver=1.3.16.0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Xero P&amp;L <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://store-pvv5u2d.mybigcommerce.com/manage/analytics/overview" target="_blank"><span class="qi"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> BC Analytics <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Google Ads <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://insights.cin7.com/Frontend#/" target="_blank"><span class="qi"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Cin7 Insights <span class="ql-arr">→</span></a>
@@ -197,27 +250,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
       </div>
     </div>
 
-  </div>
+  </div><!-- /col-main -->
 
+  <!-- ══ RIGHT SIDEBAR ══ -->
   <div class="col-side">
 
-    <div class="weather-strip">
+    <!-- Weather -->
+    <div class="side-weather">
       <span id="wx-icon" style="font-size:14px">—</span>
       <span class="wx-temp" id="wx-temp"></span>
       <span id="wx-desc" style="flex:1">Sydney</span>
       <span style="color:var(--muted);font-size:9px">Sydney</span>
     </div>
 
-    <div class="side-section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;cursor:pointer" onclick="toggleSlack()">
-        <div style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px">
-          <span class="ldot"></span> Slack
-        </div>
-        <button class="slack-expand-btn" id="slack-toggle-btn">Show feed ↓</button>
+    <!-- Slack -->
+    <div class="side-slack">
+      <div class="slack-head">
+        <a class="slack-head-label" href="https://app.slack.com/client/TCGD7QVGC" target="_blank" style="text-decoration:none;cursor:pointer" title="Open Slack"><span class="ldot"></span> Slack</a>
+        <button class="slack-expand-btn" id="slack-toggle-btn" onclick="toggleSlack()">Show feed ↓</button>
       </div>
       <div class="slack-channels" id="slack-channels"></div>
       <div class="slack-feed-wrap" id="slack-feed-wrap">
-        <div class="slack-filter-row" style="margin-top:10px">
+        <div class="slack-filter-row">
           <input class="slack-filter" id="slack-filter" placeholder="Filter…" oninput="renderFeed()">
           <button class="btn-s" onclick="doRefresh()" id="refresh-btn">↻</button>
         </div>
@@ -225,43 +279,69 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
       </div>
     </div>
 
-    <div class="side-section">
-      <div class="side-label">All Tools</div>
-      <div class="tools-search-wrap">
-        <span class="tools-search-icon">🔍</span>
-        <input class="tools-search" id="tools-search" placeholder="Search apps…" oninput="filterTools()" autocomplete="off">
-      </div>
-      <div class="tools-grid" id="tools-grid">
-        <a class="tool-a" data-name="front inbox" href="https://app.frontapp.com" target="_blank"><img src="https://icon.horse/icon/frontapp.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Front</a>
-        <a class="tool-a" data-name="slack" href="https://app.slack.com/client/TCGD7QVGC" target="_blank"><img src="https://icon.horse/icon/slack.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Slack</a>
-        <a class="tool-a" data-name="calendar google" href="https://calendar.google.com" target="_blank"><img src="https://www.gstatic.com/images/branding/product/1x/calendar_2020q4_32dp.png" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Calendar</a>
-        <a class="tool-a" data-name="sunsama" href="https://app.sunsama.com" target="_blank"><img src="https://icon.horse/icon/sunsama.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Sunsama</a>
-        <a class="tool-a" data-name="asana tasks" href="https://app.asana.com" target="_blank"><img src="https://icon.horse/icon/asana.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Asana</a>
-        <a class="tool-a" data-name="bigcommerce store" href="https://login.bigcommerce.com/login" target="_blank"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> BigCommerce</a>
-        <a class="tool-a" data-name="cin7 inventory" href="https://auth.cin7.com/Account/Login" target="_blank"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Cin7</a>
-        <a class="tool-a" data-name="google merchant center" href="https://merchants.google.com" target="_blank"><img src="https://icon.horse/icon/merchants.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Google MC</a>
-        <a class="tool-a" data-name="datafeedwatch feed" href="https://app.datafeedwatch.com" target="_blank"><img src="https://icon.horse/icon/datafeedwatch.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> DataFeedWatch</a>
-        <a class="tool-a" data-name="make automation" href="https://make.com" target="_blank"><img src="https://icon.horse/icon/make.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Make.com</a>
-        <a class="tool-a" data-name="google ads adwords" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Google Ads</a>
-        <a class="tool-a" data-name="meta facebook ads" href="https://business.facebook.com" target="_blank"><img src="https://icon.horse/icon/business.facebook.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Meta Ads</a>
-        <a class="tool-a" data-name="bing microsoft ads" href="https://ads.microsoft.com" target="_blank"><img src="https://icon.horse/icon/ads.microsoft.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Bing Ads</a>
-        <a class="tool-a" data-name="semrush seo" href="https://www.semrush.com" target="_blank"><img src="https://icon.horse/icon/semrush.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> SEMrush</a>
-        <a class="tool-a" data-name="xero accounting" href="https://login.xero.com/identity/user/login" target="_blank"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Xero</a>
-        <a class="tool-a" data-name="commbank cba bank" href="https://www.my.commbank.com.au/netbank/Logon/Logon.aspx?ei=mv_logon-NB" target="_blank"><img src="https://icon.horse/icon/commbank.com.au" width="13" height="13" style="border-radius:2px;vertical-align:middle"> CBA</a>
-        <a class="tool-a" data-name="amex american express" href="https://www.americanexpress.com/en-AU/account/login/" target="_blank"><img src="https://icon.horse/icon/americanexpress.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Amex</a>
-        <a class="tool-a" data-name="nab bank" href="https://www.nab.com.au" target="_blank"><img src="https://icon.horse/icon/nab.com.au" width="13" height="13" style="border-radius:2px;vertical-align:middle"> NAB</a>
-        <a class="tool-a" data-name="drive google files" href="https://drive.google.com" target="_blank"><img src="https://icon.horse/icon/drive.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> Drive</a>
-        <a class="tool-a" data-name="hubspot crm" href="https://app-ap1.hubspot.com/contacts/21975795" target="_blank"><img src="https://icon.horse/icon/hubspot.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"> HubSpot</a>
-      </div>
-      <div class="tools-empty" id="tools-empty">No apps found</div>
-    </div>
+    <!-- Stacked panels: Drive + Scratchpad -->
+    <div class="side-panels">
 
-  </div>
+      <!-- GOOGLE DRIVE -->
+      <div class="side-panel side-panel-drive">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
+          <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">📁 Drive</span>
+          <div style="display:flex;gap:6px;align-items:center" id="drive-header-actions"></div>
+        </div>
+        <div class="drive-wrap" style="padding:12px 16px;gap:8px">
+          <div id="drive-setup-area" style="display:none;flex:1;flex-direction:column">
+            <div class="drive-setup">
+              <div class="drive-setup-icon">📁</div>
+              <div class="drive-setup-text">Paste your Google API key to browse Drive.<br>Same key as Calendar. Stored locally.</div>
+              <div class="drive-key-row">
+                <input class="drive-key-inp" id="drive-key-inp" type="password" placeholder="Google API key…">
+                <button class="btn-s" onclick="saveDriveKey()" style="padding:5px 10px">Save</button>
+              </div>
+            </div>
+          </div>
+          <div id="drive-main-area" style="display:none;flex:1;flex-direction:column;gap:8px;overflow:hidden;min-height:0">
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <input class="drive-search" id="drive-search" placeholder="Search Drive…" oninput="debounceDriveSearch()">
+              <button class="btn-s" onclick="clearDriveKey()" title="Change key" style="padding:4px 8px;font-size:10px">⚙</button>
+            </div>
+            <div class="drive-breadcrumb" id="drive-breadcrumb"></div>
+            <div class="drive-list" id="drive-list" style="flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent;display:flex;flex-direction:column;gap:2px">
+              <div class="drive-loading">Loading…</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KEEP-STYLE NOTES -->
+      <div class="side-panel side-panel-scratch">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
+          <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">📌 Notes</span>
+          <button class="btn-ghost" onclick="openNewNote()" style="font-size:9px">+ New</button>
+        </div>
+        <!-- note list -->
+        <div id="keep-list" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent"></div>
+        <!-- inline editor (hidden by default) -->
+        <div id="keep-editor" style="display:none;flex-direction:column;border-top:1px solid var(--bdr);padding:12px 16px;gap:8px;flex-shrink:0;background:var(--bg)">
+          <input id="keep-title" class="inp" placeholder="Title (optional)" style="font-size:11px;font-weight:500">
+          <textarea id="keep-body" class="scratch-ta" placeholder="Take a note…" style="height:80px;min-height:60px;resize:none;font-size:11px" spellcheck="false"></textarea>
+          <div style="display:flex;align-items:center;gap:6px">
+            <div style="display:flex;gap:4px" id="keep-colors"></div>
+            <div style="margin-left:auto;display:flex;gap:5px">
+              <button class="btn-ghost" onclick="cancelNote()">Cancel</button>
+              <button class="btn-ghost" onclick="saveNote()" style="border-color:var(--gold);color:var(--gold)">Save</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /side-panels -->
+
+  </div><!-- /col-side -->
 </div>
 </div>
 
 <script>
-// CLOCK
+// ══ CLOCK ══
 function tick(){
   const n=new Date(),p=v=>String(v).padStart(2,'0');
   const h=n.getHours(),ampm=h>=12?'pm':'am',h12=h%12||12;
@@ -277,7 +357,7 @@ function tick(){
 }
 setInterval(tick,1000);tick();
 
-// WEATHER
+// ══ WEATHER ══
 const WX_CODES={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Foggy'],48:['🌫️','Foggy'],51:['🌦️','Drizzle'],61:['🌧️','Rain'],63:['🌧️','Rain'],80:['🌦️','Showers'],95:['⛈️','Thunderstorm']};
 function applyWeather(t,c){const w=WX_CODES[c]||['🌡️',''];document.getElementById('wx-icon').textContent=w[0];document.getElementById('wx-temp').textContent=`${Math.round(t)}°`;document.getElementById('wx-desc').textContent=w[1]||'';}
 async function loadWeather(){
@@ -287,20 +367,262 @@ async function loadWeather(){
 }
 loadWeather();setInterval(loadWeather,15*60*1000);
 
-// FOCUS
+// ══ FOCUS ══
 const focusInput=document.getElementById('focus-input'),focusSaved=document.getElementById('focus-saved');
 focusInput.value=localStorage.getItem('z_focus')||'';
 focusInput.addEventListener('input',()=>{localStorage.setItem('z_focus',focusInput.value);focusSaved.textContent=focusInput.value?'✓ saved':'';});
 if(focusInput.value) focusSaved.textContent='✓ saved';
 function clearFocus(){focusInput.value='';localStorage.removeItem('z_focus');focusSaved.textContent='';focusInput.focus();}
 
-// ASANA
+// ══ DRIVE AUTO-INIT ══
+initDrive();
+
+// ══ KEEP-STYLE NOTES ══
+const KEEP_COLORS=[
+  {id:'default',bg:'var(--bg2)',label:'Default'},
+  {id:'yellow', bg:'#3d3000',label:'Yellow'},
+  {id:'green',  bg:'#0d2b1a',label:'Green'},
+  {id:'blue',   bg:'#0d1f3a',label:'Blue'},
+  {id:'red',    bg:'#2d0d0d',label:'Red'},
+  {id:'purple', bg:'#1e0d2d',label:'Purple'},
+];
+let keepNotes=JSON.parse(localStorage.getItem('z_keep')||'[]');
+let keepEditId=null,keepColor='default';
+
+function saveKeep(){localStorage.setItem('z_keep',JSON.stringify(keepNotes));}
+
+function renderKeep(){
+  const el=document.getElementById('keep-list');
+  if(!keepNotes.length){
+    el.innerHTML=`<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;padding:20px 0;opacity:.6">No notes yet.<br>Hit + New to start.</div>`;
+    return;
+  }
+  el.innerHTML=keepNotes.map(n=>{
+    const col=KEEP_COLORS.find(c=>c.id===n.color)||KEEP_COLORS[0];
+    const preview=n.body?n.body.slice(0,120)+(n.body.length>120?'…':''):'';
+    return `<div class="keep-card" style="background:${col.bg}" onclick="editNote('${n.id}')">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:6px">
+        ${n.title?`<div class="keep-card-title">${escHtml(n.title)}</div>`:''}
+        <button class="keep-del" onclick="event.stopPropagation();deleteNote('${n.id}')" title="Delete">✕</button>
+      </div>
+      ${preview?`<div class="keep-card-body">${escHtml(preview)}</div>`:''}
+      <div class="keep-card-date">${fmtKeepDate(n.updated)}</div>
+    </div>`;
+  }).join('');
+}
+
+function fmtKeepDate(ts){
+  if(!ts)return'';
+  const d=new Date(ts),now=new Date();
+  const diff=Math.floor((now-d)/86400000);
+  if(diff===0)return'Today '+d.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true});
+  if(diff===1)return'Yesterday';
+  if(diff<7)return d.toLocaleDateString('en-AU',{weekday:'short'});
+  return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+}
+
+function renderColorPicker(){
+  document.getElementById('keep-colors').innerHTML=KEEP_COLORS.map(c=>`
+    <div onclick="setKeepColor('${c.id}')" title="${c.label}" style="
+      width:14px;height:14px;border-radius:50%;background:${c.bg==='var(--bg2)'?'#2d3139':c.bg};
+      border:2px solid ${keepColor===c.id?'var(--gold)':'transparent'};
+      cursor:pointer;transition:border-color .12s;flex-shrink:0
+    "></div>
+  `).join('');
+}
+
+function setKeepColor(id){keepColor=id;renderColorPicker();}
+
+function openNewNote(){
+  keepEditId=null;keepColor='default';
+  document.getElementById('keep-title').value='';
+  document.getElementById('keep-body').value='';
+  document.getElementById('keep-editor').style.display='flex';
+  renderColorPicker();
+  setTimeout(()=>document.getElementById('keep-body').focus(),50);
+}
+
+function editNote(id){
+  const n=keepNotes.find(n=>n.id===id);if(!n)return;
+  keepEditId=id;keepColor=n.color||'default';
+  document.getElementById('keep-title').value=n.title||'';
+  document.getElementById('keep-body').value=n.body||'';
+  document.getElementById('keep-editor').style.display='flex';
+  renderColorPicker();
+  setTimeout(()=>document.getElementById('keep-body').focus(),50);
+}
+
+function saveNote(){
+  const title=document.getElementById('keep-title').value.trim();
+  const body=document.getElementById('keep-body').value.trim();
+  if(!title&&!body){cancelNote();return;}
+  if(keepEditId){
+    const n=keepNotes.find(n=>n.id===keepEditId);
+    if(n){n.title=title;n.body=body;n.color=keepColor;n.updated=Date.now();}
+  }else{
+    keepNotes.unshift({id:Date.now().toString(),title,body,color:keepColor,updated:Date.now()});
+  }
+  saveKeep();cancelNote();renderKeep();
+}
+
+function cancelNote(){
+  document.getElementById('keep-editor').style.display='none';
+  keepEditId=null;
+}
+
+function deleteNote(id){
+  keepNotes=keepNotes.filter(n=>n.id!==id);
+  saveKeep();renderKeep();
+}
+
+renderKeep();
+
+
+
+// ══ GOOGLE DRIVE ══
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+let driveKey='',driveStack=[{id:'root',name:'My Drive'}],driveSearchTimer=null;
+
+function initDrive(){
+  const enc=localStorage.getItem('z_drive_key');
+  if(enc){driveKey=atob(enc);showDriveMain();loadDriveFolder('root');}
+  else showDriveSetup();
+}
+
+function showDriveSetup(){
+  document.getElementById('drive-setup-area').style.display='flex';
+  document.getElementById('drive-main-area').style.display='none';
+}
+function showDriveMain(){
+  document.getElementById('drive-setup-area').style.display='none';
+  document.getElementById('drive-main-area').style.display='flex';
+}
+
+function saveDriveKey(){
+  const val=document.getElementById('drive-key-inp').value.trim();
+  if(!val)return;
+  driveKey=val;
+  localStorage.setItem('z_drive_key',btoa(val));
+  document.getElementById('drive-key-inp').value='';
+  showDriveMain();
+  loadDriveFolder('root');
+}
+
+function clearDriveKey(){
+  if(!confirm('Remove saved API key?'))return;
+  localStorage.removeItem('z_drive_key');
+  driveKey='';driveStack=[{id:'root',name:'My Drive'}];
+  showDriveSetup();
+}
+
+function renderBreadcrumb(){
+  const el=document.getElementById('drive-breadcrumb');
+  el.innerHTML=driveStack.map((s,i)=>`
+    <span class="drive-bc-item" onclick="driveNavTo(${i})">${s.name}</span>
+    ${i<driveStack.length-1?'<span class="drive-bc-sep">/</span>':''}
+  `).join('');
+}
+
+function driveNavTo(idx){
+  driveStack=driveStack.slice(0,idx+1);
+  renderBreadcrumb();
+  loadDriveFolder(driveStack[driveStack.length-1].id);
+}
+
+const MIME_ICONS={
+  'application/vnd.google-apps.folder':'📁',
+  'application/vnd.google-apps.document':'📄',
+  'application/vnd.google-apps.spreadsheet':'📊',
+  'application/vnd.google-apps.presentation':'📑',
+  'application/vnd.google-apps.form':'📋',
+  'application/pdf':'📕',
+  'image/jpeg':'🖼️','image/png':'🖼️','image/gif':'🖼️',
+  'video/mp4':'🎬','video/quicktime':'🎬',
+  'audio/mpeg':'🎵',
+  'application/zip':'🗜️',
+};
+function mimeIcon(mime){return MIME_ICONS[mime]||'📎';}
+
+function fmtDate(iso){
+  if(!iso)return'';
+  const d=new Date(iso);
+  const today=new Date();
+  const diff=Math.floor((today-d)/86400000);
+  if(diff===0)return'Today';if(diff===1)return'Yesterday';
+  if(diff<7)return diff+'d ago';
+  return d.toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+}
+
+async function loadDriveFolder(folderId){
+  const list=document.getElementById('drive-list');
+  list.innerHTML='<div class="drive-loading">Loading…</div>';
+  renderBreadcrumb();
+  document.getElementById('drive-search').value='';
+  const q=folderId==='root'?`'root' in parents`:`'${folderId}' in parents`;
+  const url=`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q+" and trashed=false")}&orderBy=folder,name&fields=files(id,name,mimeType,modifiedTime,webViewLink,iconLink)&pageSize=50&key=${driveKey}`;
+  try{
+    const r=await fetch(url);const d=await r.json();
+    if(d.error){list.innerHTML=`<div class="drive-loading" style="color:var(--red)">${d.error.message}</div>`;return;}
+    renderDriveItems(d.files||[]);
+  }catch(e){list.innerHTML='<div class="drive-loading" style="color:var(--red)">Network error</div>';}
+}
+
+async function driveSearch(q){
+  if(!q.trim()){loadDriveFolder(driveStack[driveStack.length-1].id);return;}
+  const list=document.getElementById('drive-list');
+  list.innerHTML='<div class="drive-loading">Searching…</div>';
+  const query=`name contains '${q.replace(/'/g,"\\'")}' and trashed=false`;
+  const url=`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&fields=files(id,name,mimeType,modifiedTime,webViewLink)&pageSize=30&key=${driveKey}`;
+  try{
+    const r=await fetch(url);const d=await r.json();
+    if(d.error){list.innerHTML=`<div class="drive-loading" style="color:var(--red)">${d.error.message}</div>`;return;}
+    renderDriveItems(d.files||[],true);
+  }catch(e){list.innerHTML='<div class="drive-loading" style="color:var(--red)">Network error</div>';}
+}
+
+function renderDriveItems(files,isSearch=false){
+  const list=document.getElementById('drive-list');
+  if(!files.length){list.innerHTML='<div class="drive-loading">No files found</div>';return;}
+  const folders=files.filter(f=>f.mimeType==='application/vnd.google-apps.folder');
+  const rest=files.filter(f=>f.mimeType!=='application/vnd.google-apps.folder');
+  let html='';
+  if(folders.length&&!isSearch){html+=`<div class="drive-section-label">Folders</div>`;}
+  html+=folders.map(f=>driveItemHtml(f)).join('');
+  if(rest.length&&folders.length&&!isSearch){html+=`<div class="drive-section-label" style="margin-top:8px">Files</div>`;}
+  html+=rest.map(f=>driveItemHtml(f)).join('');
+  list.innerHTML=html;
+}
+
+function driveItemHtml(f){
+  const isFolder=f.mimeType==='application/vnd.google-apps.folder';
+  const icon=mimeIcon(f.mimeType);
+  const onclick=isFolder?`driveOpen('${f.id}','${escHtml(f.name)}')`:`window.open('${f.webViewLink}','_blank')`;
+  return `<div class="drive-item" onclick="${onclick}" title="${escHtml(f.name)}">
+    <div class="drive-icon">${icon}</div>
+    <div class="drive-info">
+      <div class="drive-name">${escHtml(f.name)}</div>
+      <div class="drive-meta">${fmtDate(f.modifiedTime)}</div>
+    </div>
+    <div class="drive-arr">${isFolder?'›':'↗'}</div>
+  </div>`;
+}
+
+function driveOpen(id,name){
+  driveStack.push({id,name});
+  loadDriveFolder(id);
+}
+
+function debounceDriveSearch(){
+  clearTimeout(driveSearchTimer);
+  driveSearchTimer=setTimeout(()=>driveSearch(document.getElementById('drive-search').value),350);
+}
+
+// ══ ASANA ══
 const ASANA_WORKSPACE='447722705768120';
 let TASKS=[],CURRENT_SECTIONS=[];
 function taskRow(t,done){return `<div class="task-item" id="t${t.gid}"><div class="task-cb${done.includes(t.gid)?' done':''}" onclick="toggleTask('${t.gid}')">${done.includes(t.gid)?'✓':''}</div><a href="${t.url}" target="_blank" class="task-name${done.includes(t.gid)?' done':''}">${t.name}</a></div>`;}
 function renderAsana(tasks,sections){
-  if(tasks) TASKS=tasks;
-  if(sections!==undefined) CURRENT_SECTIONS=sections||[];
+  if(tasks)TASKS=tasks;if(sections!==undefined)CURRENT_SECTIONS=sections||[];
   const done=JSON.parse(localStorage.getItem('z_done')||'[]');
   const el=document.getElementById('asana-list');
   const visible=TASKS.filter(t=>!done.includes(t.gid));
@@ -310,7 +632,7 @@ function renderAsana(tasks,sections){
     CURRENT_SECTIONS.forEach(sec=>{const st=visible.filter(t=>t.sectionGid===sec.gid);if(!st.length)return;html+=`<div class="sec-label">${sec.name}</div>`;html+=st.map(t=>taskRow(t,done)).join('');});
     html+=visible.filter(t=>!t.sectionGid).map(t=>taskRow(t,done)).join('');
     el.innerHTML=html||'<div style="font-size:11px;color:var(--muted);padding:6px 0">No open tasks 🎉</div>';
-  } else {el.innerHTML=visible.map(t=>taskRow(t,done)).join('');}
+  }else{el.innerHTML=visible.map(t=>taskRow(t,done)).join('');}
 }
 async function toggleTask(gid){
   const row=document.getElementById('t'+gid);
@@ -319,13 +641,12 @@ async function toggleTask(gid){
   if(patEnc){try{await fetch(`https://app.asana.com/api/1.0/tasks/${gid}`,{method:'PUT',headers:{'Authorization':'Bearer '+atob(patEnc),'Content-Type':'application/json'},body:JSON.stringify({data:{completed:true}})});}catch(e){}}
   TASKS=TASKS.filter(t=>t.gid!==gid);
   const done=JSON.parse(localStorage.getItem('z_done')||'[]');
-  if(!done.includes(gid)) done.push(gid);
-  localStorage.setItem('z_done',JSON.stringify(done));
-  renderAsana();
+  if(!done.includes(gid))done.push(gid);
+  localStorage.setItem('z_done',JSON.stringify(done));renderAsana();
 }
 let asanaProjectsLoaded=false;
 async function loadAsanaProjects(pat){
-  if(asanaProjectsLoaded) return;
+  if(asanaProjectsLoaded)return;
   try{const r=await fetch(`https://app.asana.com/api/1.0/projects?workspace=${ASANA_WORKSPACE}&archived=false&opt_fields=gid,name&limit=50`,{headers:{'Authorization':'Bearer '+pat}});const d=await r.json();if(!d.data)return;const sel=document.getElementById('asana-project-select');while(sel.options.length>1)sel.remove(1);d.data.forEach(p=>{const opt=document.createElement('option');opt.value=p.gid;opt.textContent=p.name;sel.appendChild(opt);});asanaProjectsLoaded=true;}catch(e){}
 }
 async function loadAsanaTasks(){
@@ -343,13 +664,13 @@ async function loadAsanaTasks(){
       const d=await r.json();
       if(d.errors){el.innerHTML=`<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.errors[0].message}</div>`;return;}
       renderAsana((d.data||[]).map(t=>({gid:t.gid,name:t.name,url:t.permalink_url||`https://app.asana.com/0/${ASANA_WORKSPACE}/${t.gid}`})),[]);
-    } else {
+    }else{
       const sr=await fetch(`https://app.asana.com/api/1.0/projects/${projectGid}/sections?opt_fields=gid,name`,{headers:{'Authorization':'Bearer '+pat}});
       const sd=await sr.json();const sections=sd.data||[];
       const sectionTasks=await Promise.all(sections.map(async sec=>{
         const tr=await fetch(`https://app.asana.com/api/1.0/tasks?section=${sec.gid}&completed_since=now&opt_fields=gid,name,permalink_url&limit=50`,{headers:{'Authorization':'Bearer '+pat}});
         const td=await tr.json();
-        return (td.data||[]).map(t=>({gid:t.gid,name:t.name,url:t.permalink_url||`https://app.asana.com/0/${ASANA_WORKSPACE}/${t.gid}`,sectionGid:sec.gid}));
+        return(td.data||[]).map(t=>({gid:t.gid,name:t.name,url:t.permalink_url||`https://app.asana.com/0/${ASANA_WORKSPACE}/${t.gid}`,sectionGid:sec.gid}));
       }));
       renderAsana(sectionTasks.flat(),sections);
     }
@@ -374,16 +695,7 @@ async function addTask(){
   setTimeout(()=>{status.textContent='';},3000);
 }
 
-// TOOLS SEARCH
-function filterTools(){
-  const q=(document.getElementById('tools-search').value||'').toLowerCase().trim();
-  const links=document.querySelectorAll('#tools-grid .tool-a');
-  let visible=0;
-  links.forEach(a=>{const match=!q||(a.dataset.name||a.textContent||'').toLowerCase().includes(q);a.classList.toggle('hidden',!match);if(match)visible++;});
-  document.getElementById('tools-empty').style.display=(q&&visible===0)?'block':'none';
-}
-
-// SLACK
+// ══ SLACK ══
 const CHANNELS={
   'C0AKP4YCYAV':{name:'ops-check-in',color:'#4a80d4'},
   'C0AKP523N9F':{name:'mktg-check-in',color:'#3a9e6a'},
@@ -420,16 +732,12 @@ const PROXY='https://zest-slack-proxy.onrender.com';
 const SEED_MSGS=[
   {ch:'dispatch',who:'Pervez',time:'Today 4:46pm',html:'Test',color:'#c45050'},
   {ch:'quotes',who:'Dominic',time:'Today 4:45pm',html:'QUOTE-49371 · Martellotm · $445.54 — Created on Cin7',color:'#7b5ea7'},
-  {ch:'quotes',who:'Dominic',time:'Today 4:30pm',html:'QUOTE-49370 · AWM - Seaford · $491.70 — Created on Cin7',color:'#7b5ea7'},
   {ch:'dispatch',who:'Make.com',time:'Today 3:00pm',html:'Order 19946 Dispatched — Michelle Cassidy · $1,178 · Direct Freight',color:'#c45050'},
   {ch:'purchase-orders',who:'Dominic',time:'Today 2:15pm',html:'PO-49367 · Emac and Lawton · $2,920.50 — Created',color:'#c47f17'},
-  {ch:'purchase-orders',who:'Dominic',time:'Today 9:45am',html:'PO-49361 · Telbix · $339.79 — Created',color:'#c47f17'},
   {ch:'missed-calls',who:'Mas',time:'Feb 27',html:'Sorted — Cosmo',color:'#c45050'},
-  {ch:'ops-chat',who:'Mas',time:'Feb 17',html:'Container has just landed — keep an eye on phones',color:'#4a80d4'},
   {ch:'daily-summaries',who:'Make.com',time:'Today 7:00am',html:'Daily summary ready — 3 POs, 8 dispatches, 2 quotes pending review',color:'#3a9e6a'},
 ];
-let feedData=[...SEED_MSGS],feedPage=0,slackOpen=false;
-const PAGE=10;
+let feedData=[...SEED_MSGS],slackOpen=false;
 
 function renderChannelDots(){
   const seen=new Set(feedData.map(m=>m.ch));
@@ -437,7 +745,7 @@ function renderChannelDots(){
   el.innerHTML=[...seen].map(ch=>{
     const cfg=Object.values(CHANNELS).find(c=>c.name===ch)||{name:ch,color:'#8090a8'};
     const url=CH_URLS[ch]||'https://slack.com';
-    return `<a class="slack-ch-row" href="${url}" target="_blank"><div class="slack-dot" style="background:${cfg.color||'#8090a8'}"></div><span class="slack-ch-name">#${ch}</span></a>`;
+    return `<a class="slack-ch-row" href="${url}" target="_blank"><div class="slack-dot" style="background:${cfg.color}"></div><span class="slack-ch-name">#${ch}</span></a>`;
   }).join('');
 }
 
@@ -447,7 +755,7 @@ function renderFeed(){
   const filtered=filter?feedData.filter(m=>m.ch.toLowerCase().includes(filter)||body(m).toLowerCase().includes(filter)):feedData;
   const el=document.getElementById('slack-feed');
   if(!filtered.length){el.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';return;}
-  el.innerHTML=filtered.slice(0,PAGE+feedPage*PAGE).map(m=>{
+  el.innerHTML=filtered.slice(0,10).map(m=>{
     const rowUrl=m.url||CH_URLS[m.ch]||'https://slack.com';
     const txt=body(m);
     return `<a class="slack-item" href="${rowUrl}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)">
@@ -468,17 +776,14 @@ function toggleSlack(){
   slackOpen=!slackOpen;
   document.getElementById('slack-feed-wrap').classList.toggle('open',slackOpen);
   document.getElementById('slack-toggle-btn').textContent=slackOpen?'Hide ↑':'Show feed ↓';
-  if(slackOpen) renderFeed();
+  if(slackOpen)renderFeed();
 }
 
-// Channels that should always appear in the dots even if the proxy returns nothing for them
 const PINNED_CHANNELS=['daily-summaries'];
-
 async function liveRefresh(){
   try{
     const r=await fetch(PROXY+'/feed');const d=await r.json();
     if(d.ok&&d.messages&&d.messages.length){
-      // Keep any seed/pinned messages for channels not covered by the proxy response
       const proxyChs=new Set(d.messages.map(m=>m.ch));
       const kept=feedData.filter(m=>PINNED_CHANNELS.includes(m.ch)&&!proxyChs.has(m.ch));
       feedData=[...d.messages,...kept];
@@ -487,17 +792,13 @@ async function liveRefresh(){
   }catch(e){}
   return false;
 }
-
 function doRefresh(){
   const btn=document.getElementById('refresh-btn');btn.textContent='⏳';btn.disabled=true;
   liveRefresh().then(ok=>{btn.textContent=ok?'✓':'✗';setTimeout(()=>{btn.textContent='↻';btn.disabled=false;},1500);});
 }
+renderChannelDots();liveRefresh();setInterval(liveRefresh,60000);
 
-renderChannelDots();
-liveRefresh();
-setInterval(liveRefresh,60000);
-
-// QUOTES
+// ══ QUOTES ══
 const QUOTES=[
   {text:"The impediment to action advances action. What stands in the way becomes the way.",author:"Marcus Aurelius"},
   {text:"Do not indulge in expectations. Focus on the process, not the prize.",author:"Epictetus"},
@@ -510,23 +811,13 @@ const QUOTES=[
   {text:"The quality of a person's life is in direct proportion to their commitment to excellence.",author:"Vince Lombardi"},
   {text:"A year from now you may wish you had started today.",author:"Karen Lamb"},
   {text:"Success is not final, failure is not fatal: it is the courage to continue that counts.",author:"Winston Churchill"},
-  {text:"The way to get started is to quit talking and begin doing.",author:"Walt Disney"},
   {text:"What gets measured gets managed.",author:"Peter Drucker"},
   {text:"Strategy without tactics is the slowest route to victory. Tactics without strategy is the noise before defeat.",author:"Sun Tzu"},
-  {text:"An organisation's ability to learn and translate that learning into action rapidly is the ultimate competitive advantage.",author:"Jack Welch"},
   {text:"The secret of getting ahead is getting started.",author:"Mark Twain"},
   {text:"Plans are useless, but planning is indispensable.",author:"Dwight D. Eisenhower"},
-  {text:"The only way to do great work is to love what you do.",author:"Steve Jobs"},
-  {text:"Your time is limited, so don't waste it living someone else's life.",author:"Steve Jobs"},
-  {text:"The man who moves a mountain begins by carrying away small stones.",author:"Confucius"},
   {text:"Simplicity is the ultimate sophistication.",author:"Leonardo da Vinci"},
-  {text:"Perfection is not attainable. But if we chase perfection, we can catch excellence.",author:"Vince Lombardi"},
-  {text:"Do what you can, with what you have, where you are.",author:"Theodore Roosevelt"},
-  {text:"It always seems impossible until it is done.",author:"Nelson Mandela"},
-  {text:"The function of leadership is to produce more leaders, not more followers.",author:"Ralph Nader"},
   {text:"Price is what you pay. Value is what you get.",author:"Warren Buffett"},
   {text:"Risk comes from not knowing what you're doing.",author:"Warren Buffett"},
-  {text:"The best investment you can make is in yourself.",author:"Warren Buffett"},
   {text:"A calm sea does not make a skilled sailor.",author:"African Proverb"},
   {text:"He who has a why to live can bear almost any how.",author:"Friedrich Nietzsche"},
 ];
@@ -536,7 +827,7 @@ function nextQuote(){quoteIndex=(quoteIndex+1)%QUOTES.length;showQuote(quoteInde
 const doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
 quoteIndex=doy%QUOTES.length;showQuote(quoteIndex);
 
-// GOOGLE CALENDAR
+// ══ GOOGLE CALENDAR ══
 const GCAL_EMAIL='pervez@zestlighting.com.au';
 function saveGcalKey(val){if(val)localStorage.setItem('z_gcal_key',btoa(val));document.getElementById('gcal-key').value='';document.getElementById('gcal-key').placeholder='✓ Key saved';loadCalendarEvents();}
 (function(){if(localStorage.getItem('z_gcal_key'))document.getElementById('gcal-key').placeholder='✓ Key saved';})();
