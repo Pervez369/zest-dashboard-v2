@@ -673,63 +673,31 @@ function nextQuote(){quoteIndex=(quoteIndex+1)%QUOTES.length;showQuote(quoteInde
 const doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
 quoteIndex=doy%QUOTES.length;showQuote(quoteIndex);
 
-// ══ GOOGLE CALENDAR (OAuth) ══
+// ══ GOOGLE CALENDAR (server-side token) ══
 const GCAL_EMAIL='pervez@zestlighting.com.au';
-const GCAL_CLIENT_ID='418559941075-0uaecbcq9ohe61j7q4g0t4c9femppom6.apps.googleusercontent.com';
-const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
-let gcalToken=null,gcalClient=null;
+const TOKEN_URL='https://zest-slack-proxy.onrender.com/auth/token';
+let gcalToken=null;
 
-function initGcal(){
-  const s=document.createElement('script');
-  s.src='https://accounts.google.com/gsi/client';
-  s.onload=()=>{
-    gcalClient=google.accounts.oauth2.initTokenClient({
-      client_id:GCAL_CLIENT_ID,
-      scope:GCAL_SCOPE,
-      prompt:'',
-      callback:(resp)=>{
-        if(resp.error||!resp.access_token){showGcalSignIn();return;}
-        gcalToken={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};
-        localStorage.setItem('z_gcal_token',JSON.stringify(gcalToken));
-        loadCalendarEvents();
-        // Schedule next silent refresh 2 mins before expiry
-        setTimeout(()=>gcalClient.requestAccessToken({prompt:''}),(resp.expires_in-120)*1000);
-      }
-    });
-    // Use saved token if still valid
-    const saved=localStorage.getItem('z_gcal_token');
-    if(saved){
-      const t=JSON.parse(saved);
-      if(t.expires_at&&Date.now()<t.expires_at){
-        gcalToken=t;
-        loadCalendarEvents();
-        const msLeft=t.expires_at-Date.now()-120000;
-        if(msLeft>0) setTimeout(()=>gcalClient.requestAccessToken({prompt:''}),msLeft);
-        return;
-      }
+async function initGcal(){
+  await refreshGcalToken();
+  setInterval(refreshGcalToken,45*60*1000); // refresh every 45 mins
+}
+
+async function refreshGcalToken(){
+  try{
+    const r=await fetch(TOKEN_URL);
+    const d=await r.json();
+    if(d.ok&&d.access_token){
+      gcalToken={access_token:d.access_token,expires_at:d.expires_at};
+      loadCalendarEvents();
+    }else{
+      console.error('Token error:',d.error);
     }
-    // Silent refresh — no popup
-    gcalClient.requestAccessToken({prompt:''});
-  };
-  document.head.appendChild(s);
-}
-
-function gcalSignIn(){
-  if(gcalClient) gcalClient.requestAccessToken({prompt:'consent'});
-}
-
-function showGcalSignIn(){
-  const el=document.getElementById('cal-events');
-  el.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;padding:4px 0">
-    <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Sign in to see your calendar</div>
-    <button onclick="gcalSignIn()" style="display:flex;align-items:center;gap:6px;background:var(--surf);border:1px solid var(--bdr2);border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;width:fit-content" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background='var(--surf)'">
-      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="14" height="14">
-      Sign in with Google
-    </button>
-  </div>`;
+  }catch(e){console.error('Token fetch failed:',e);}
 }
 
 function saveGcalKey(val){}// legacy no-op
+function gcalSignIn(){}// legacy no-op
 
 async function loadCalendarEvents(){
   const el=document.getElementById('cal-events');
@@ -753,17 +721,14 @@ async function loadCalendarEvents(){
 }
 
 function fmtEventTime(event){
-  const now=new Date();
-  const toSydney=d=>new Date(d.toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
-  const sydneyNow=toSydney(now);
-  const pad=v=>String(v).padStart(2,'0');
-  const dateStr=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const todayStr=dateStr(sydneyNow);
-  const tom=new Date(sydneyNow);tom.setDate(tom.getDate()+1);
-  const tomorrowStr=dateStr(tom);
+  const TZ='Australia/Sydney';
+  const fmt=new Intl.DateTimeFormat('en-AU',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'});
+  const sydDateStr=d=>{const p=fmt.formatToParts(d);return p.find(x=>x.type==='year').value+'-'+p.find(x=>x.type==='month').value+'-'+p.find(x=>x.type==='day').value;};
+  const todayStr=sydDateStr(new Date());
+  const tom=new Date();tom.setDate(tom.getDate()+1);
+  const tomorrowStr=sydDateStr(tom);
 
   if(event.start.date){
-    // All-day events — date string is already YYYY-MM-DD, no timezone conversion needed
     const ds=event.start.date;
     if(ds===todayStr)return 'Today · All day';
     if(ds===tomorrowStr)return 'Tomorrow · All day';
@@ -771,19 +736,17 @@ function fmtEventTime(event){
     return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})+' · All day';
   }
 
-  // Timed events — parse the dateTime and convert to Sydney
   const start=new Date(event.start.dateTime);
-  const startSyd=toSydney(start);
-  const startStr=dateStr(startSyd);
-  const timeStr=start.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Australia/Sydney'});
+  const startStr=sydDateStr(start);
+  const timeStr=start.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:TZ});
 
   if(startStr===todayStr)return 'Today · '+timeStr;
   if(startStr===tomorrowStr)return 'Tomorrow · '+timeStr;
-  return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:'Australia/Sydney'})+' · '+timeStr;
+  return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:TZ})+' · '+timeStr;
 }
 
 initGcal();
-setInterval(()=>{if(gcalToken&&Date.now()<gcalToken.expires_at)loadCalendarEvents();},5*60*1000);
+setInterval(()=>{if(gcalToken)loadCalendarEvents();},5*60*1000);
 </script>
 </body>
 </html>
