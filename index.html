@@ -753,15 +753,30 @@ async function loadCalendarEvents(){
 }
 
 function fmtEventTime(event){
-  const sydneyNow=new Date(new Date().toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
-  const todayStr=sydneyNow.getFullYear()+'-'+String(sydneyNow.getMonth()+1).padStart(2,'0')+'-'+String(sydneyNow.getDate()).padStart(2,'0');
-  const tomorrowDate=new Date(sydneyNow);tomorrowDate.setDate(tomorrowDate.getDate()+1);
-  const tomorrowStr=tomorrowDate.getFullYear()+'-'+String(tomorrowDate.getMonth()+1).padStart(2,'0')+'-'+String(tomorrowDate.getDate()).padStart(2,'0');
-  if(event.start.date){const ds=event.start.date;if(ds===todayStr)return 'Today · All day';if(ds===tomorrowStr)return 'Tomorrow · All day';const d=new Date(ds+'T00:00:00');return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})+' · All day';}
+  const now=new Date();
+  const toSydney=d=>new Date(d.toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
+  const sydneyNow=toSydney(now);
+  const pad=v=>String(v).padStart(2,'0');
+  const dateStr=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const todayStr=dateStr(sydneyNow);
+  const tom=new Date(sydneyNow);tom.setDate(tom.getDate()+1);
+  const tomorrowStr=dateStr(tom);
+
+  if(event.start.date){
+    // All-day events — date string is already YYYY-MM-DD, no timezone conversion needed
+    const ds=event.start.date;
+    if(ds===todayStr)return 'Today · All day';
+    if(ds===tomorrowStr)return 'Tomorrow · All day';
+    const d=new Date(ds+'T00:00:00');
+    return d.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short'})+' · All day';
+  }
+
+  // Timed events — parse the dateTime and convert to Sydney
   const start=new Date(event.start.dateTime);
-  const startSydney=new Date(start.toLocaleString('en-AU',{timeZone:'Australia/Sydney'}));
-  const startStr=startSydney.getFullYear()+'-'+String(startSydney.getMonth()+1).padStart(2,'0')+'-'+String(startSydney.getDate()).padStart(2,'0');
+  const startSyd=toSydney(start);
+  const startStr=dateStr(startSyd);
   const timeStr=start.toLocaleTimeString('en-AU',{hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Australia/Sydney'});
+
   if(startStr===todayStr)return 'Today · '+timeStr;
   if(startStr===tomorrowStr)return 'Tomorrow · '+timeStr;
   return start.toLocaleDateString('en-AU',{weekday:'short',day:'numeric',month:'short',timeZone:'Australia/Sydney'})+' · '+timeStr;
