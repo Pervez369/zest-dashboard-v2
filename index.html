@@ -677,87 +677,63 @@ quoteIndex=doy%QUOTES.length;showQuote(quoteIndex);
 const GCAL_EMAIL='pervez@zestlighting.com.au';
 const GCAL_CLIENT_ID='418559941075-0uaecbcq9ohe61j7q4g0t4c9femppom6.apps.googleusercontent.com';
 const GCAL_SCOPE='https://www.googleapis.com/auth/calendar.readonly';
-let gcalToken=null;
+let gcalToken=null,gcalClient=null;
 
 function initGcal(){
-  // Load Google Identity Services script
   const s=document.createElement('script');
   s.src='https://accounts.google.com/gsi/client';
-  s.onload=()=>tryAutoSignIn();
+  s.onload=()=>{
+    gcalClient=google.accounts.oauth2.initTokenClient({
+      client_id:GCAL_CLIENT_ID,
+      scope:GCAL_SCOPE,
+      prompt:'',
+      callback:(resp)=>{
+        if(resp.error||!resp.access_token){showGcalSignIn();return;}
+        gcalToken={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};
+        localStorage.setItem('z_gcal_token',JSON.stringify(gcalToken));
+        loadCalendarEvents();
+        // Schedule next silent refresh 2 mins before expiry
+        setTimeout(()=>gcalClient.requestAccessToken({prompt:''}),(resp.expires_in-120)*1000);
+      }
+    });
+    // Use saved token if still valid
+    const saved=localStorage.getItem('z_gcal_token');
+    if(saved){
+      const t=JSON.parse(saved);
+      if(t.expires_at&&Date.now()<t.expires_at){
+        gcalToken=t;
+        loadCalendarEvents();
+        const msLeft=t.expires_at-Date.now()-120000;
+        if(msLeft>0) setTimeout(()=>gcalClient.requestAccessToken({prompt:''}),msLeft);
+        return;
+      }
+    }
+    // Silent refresh — no popup
+    gcalClient.requestAccessToken({prompt:''});
+  };
   document.head.appendChild(s);
 }
 
-function tryAutoSignIn(){
-  const saved=localStorage.getItem('z_gcal_token');
-  if(saved){
-    gcalToken=JSON.parse(saved);
-    if(gcalToken.expires_at&&Date.now()<gcalToken.expires_at){
-      loadCalendarEvents();
-      scheduleTokenRefresh();
-      return;
-    }
-  }
-  // Try silent refresh first
-  silentRefresh();
-}
-
-function silentRefresh(){
-  if(typeof google==='undefined'){showGcalSignIn();return;}
-  const client=google.accounts.oauth2.initTokenClient({
-    client_id:GCAL_CLIENT_ID,
-    scope:GCAL_SCOPE,
-    prompt:'',
-    callback:(resp)=>{
-      if(resp.error||!resp.access_token){showGcalSignIn();return;}
-      gcalToken={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};
-      localStorage.setItem('z_gcal_token',JSON.stringify(gcalToken));
-      loadCalendarEvents();
-      scheduleTokenRefresh();
-    }
-  });
-  client.requestAccessToken();
-}
-
-function scheduleTokenRefresh(){
-  if(!gcalToken)return;
-  const msUntilExpiry=gcalToken.expires_at-Date.now()-60000;
-  if(msUntilExpiry>0) setTimeout(silentRefresh, msUntilExpiry);
+function gcalSignIn(){
+  if(gcalClient) gcalClient.requestAccessToken({prompt:'consent'});
 }
 
 function showGcalSignIn(){
   const el=document.getElementById('cal-events');
   el.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px;padding:4px 0">
     <div style="font-size:11px;color:var(--muted);font-family:'DM Mono',monospace">Sign in to see your calendar</div>
-    <button onclick="gcalSignIn()" style="display:flex;align-items:center;gap:6px;background:var(--surf);border:1px solid var(--bdr2);border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;transition:all .12s;width:fit-content" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background='var(--surf)'">
+    <button onclick="gcalSignIn()" style="display:flex;align-items:center;gap:6px;background:var(--surf);border:1px solid var(--bdr2);border-radius:6px;padding:6px 10px;cursor:pointer;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;width:fit-content" onmouseover="this.style.background='var(--surf2)'" onmouseout="this.style.background='var(--surf)'">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="14" height="14">
       Sign in with Google
     </button>
   </div>`;
 }
 
-function gcalSignIn(){
-  const client=google.accounts.oauth2.initTokenClient({
-    client_id:GCAL_CLIENT_ID,
-    scope:GCAL_SCOPE,
-    callback:(resp)=>{
-      if(resp.error){console.error(resp);return;}
-      gcalToken={access_token:resp.access_token,expires_at:Date.now()+(resp.expires_in-60)*1000};
-      localStorage.setItem('z_gcal_token',JSON.stringify(gcalToken));
-      loadCalendarEvents();
-    }
-  });
-  client.requestAccessToken();
-}
-
-function saveGcalKey(val){
-  // Legacy — ignore, kept so old settings input doesn't break
-}
+function saveGcalKey(val){}// legacy no-op
 
 async function loadCalendarEvents(){
   const el=document.getElementById('cal-events');
-  if(!gcalToken||Date.now()>=gcalToken.expires_at){
-    showGcalSignIn();return;
-  }
+  if(!gcalToken||Date.now()>=gcalToken.expires_at){showGcalSignIn();return;}
   const now=new Date().toISOString();
   const url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?timeMin=${now}&maxResults=5&singleEvents=true&orderBy=startTime`;
   try{
