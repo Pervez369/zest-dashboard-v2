@@ -112,8 +112,18 @@
 
     return list.map(function (item) {
       var qty = pick(item, ["stock", "inventory_level", "inventory", "qty", "quantity"]);
-      var brandId = pick(item, ["brand_id", "brandId"]);
-      var ref = brandId != null ? SUPPLIERS[String(brandId)] : null;
+      // Match the product's categories against the sheet's BC ID (category) column.
+      var ref = null;
+      var cats = pick(item, ["categories"]);
+      if (Array.isArray(cats)) {
+        for (var c = 0; c < cats.length; c++) {
+          if (SUPPLIERS[String(cats[c])]) { ref = SUPPLIERS[String(cats[c])]; break; }
+        }
+      }
+      if (!ref) {
+        var brandId = pick(item, ["brand_id", "brandId"]);
+        if (brandId != null && SUPPLIERS[String(brandId)]) ref = SUPPLIERS[String(brandId)];
+      }
       return {
         name: pick(item, ["name", "product_name", "title"]) || "Unnamed product",
         sku: pick(item, ["sku", "code", "Sku", "SKU"]) || "—",
