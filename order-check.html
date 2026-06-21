@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Check</title>
+<style>
+  :root {
+    --bg:#ffffff; --surface:#f6f5f3; --border:#e4e1db; --text:#1c1b19; --muted:#807a70;
+    --accent:#c8761b; --accent-press:#a9621433;
+    --in:#2f8a4c; --in-bg:#e7f3ea; --low:#b07406; --low-bg:#fbf1dc;
+    --out:#c2412f; --out-bg:#fbe9e6; --chk:#5a5550; --chk-bg:#eceae6;
+    --radius:10px; --shadow:0 1px 2px rgba(0,0,0,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#1c1b19; --surface:#262422; --border:#38352f; --text:#f0ede7; --muted:#9a948a;
+      --accent:#e0902f;
+      --in:#5fce86; --in-bg:#1d2e22; --low:#e0b257; --low-bg:#2e2616;
+      --out:#f08a78; --out-bg:#2e1c19; --chk:#b8b2a8; --chk-bg:#2b2925; --shadow:none;
+    }
+  }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
+  body {
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px; line-height:1.45; padding:14px; -webkit-font-smoothing:antialiased;
+  }
+  h1 { font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; }
+  form { display:flex; gap:6px; margin-bottom:14px; }
+  input[type="text"] {
+    flex:1; min-width:0; padding:9px 11px; border:1px solid var(--border);
+    border-radius:var(--radius); background:var(--bg); color:var(--text); font-size:14px;
+  }
+  input[type="text"]:focus { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+  button { font-family:inherit; cursor:pointer; border:none; border-radius:var(--radius); }
+  .check { padding:9px 14px; background:var(--accent); color:#fff; font-size:14px; font-weight:600; white-space:nowrap; }
+  .check:disabled { opacity:.55; cursor:default; }
+  .state { color:var(--muted); padding:18px 4px; text-align:center; font-size:13px; }
+  .state.error { color:var(--out); text-align:left; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:13px; }
+  .ohead { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:3px; }
+  .onum { font-weight:700; font-size:16px; }
+  .pill { font-size:11px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 8px; border-radius:999px; white-space:nowrap; }
+  .pill.in { color:var(--in); background:var(--in-bg); }
+  .pill.low { color:var(--low); background:var(--low-bg); }
+  .pill.out { color:var(--out); background:var(--out-bg); }
+  .pill.chk { color:var(--chk); background:var(--chk-bg); }
+  .date { font-size:12px; color:var(--muted); margin-bottom:12px; }
+  .kv { display:flex; justify-content:space-between; gap:10px; font-size:13px; padding:3px 0; }
+  .kv .k { color:var(--muted); }
+  .kv .v { text-align:right; word-break:break-word; }
+  .sec { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
+  .sec-label { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-bottom:7px; }
+  .item { display:flex; justify-content:space-between; gap:8px; font-size:13px; padding:5px 0; border-bottom:1px dashed var(--border); }
+  .item:last-child { border-bottom:none; }
+  .item .qty { color:var(--muted); font-variant-numeric:tabular-nums; }
+  .item .nm { flex:1; }
+  .item .nm .sku { display:block; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:var(--muted); }
+  .item .pr { white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .total { display:flex; justify-content:space-between; font-weight:700; font-size:15px; margin-top:10px; padding-top:8px; border-top:1px solid var(--border); }
+  .msg { margin-top:10px; font-size:12px; color:var(--text); background:var(--chk-bg); border-radius:8px; padding:8px 10px; }
+  .actions { margin-top:12px; }
+  .open { display:inline-block; text-decoration:none; padding:8px 12px; border:1px solid var(--border); border-radius:var(--radius); color:var(--text); font-size:13px; font-weight:600; }
+  .open:active { background:var(--accent-press); }
+  @media (prefers-reduced-motion: no-preference) {
+    .card { animation:rise .18s ease both; }
+    @keyframes rise { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+  }
+</style>
+</head>
+<body>
+  <h1>Order Check</h1>
+  <form id="form">
+    <input id="q" type="text" placeholder="Order number" autocomplete="off" inputmode="numeric" autofocus>
+    <button class="check" id="btn" type="submit">Check</button>
+  </form>
+  <div id="results"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // The Make webhook for order lookups. Paste the URL Make gives you after importing.
+  var WEBHOOK = "https://hook.us2.make.com/qkvu75tfqnxvk7ozrmp6lzav09144n35";
+
+  var STORE_ADMIN = "https://store-pvv5u2d.mybigcommerce.com/manage/orders/";
+
+  var form = document.getElementById("form");
+  var input = document.getElementById("q");
+  var btn = document.getElementById("btn");
+  var resultsEl = document.getElementById("results");
+
+  function setState(msg, isError) {
+    resultsEl.innerHTML = "";
+    var d = document.createElement("div");
+    d.className = "state" + (isError ? " error" : "");
+    d.textContent = msg;
+    resultsEl.appendChild(d);
+  }
+
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
+  function money(v, cur) {
+    var n = Number(v);
+    if (isNaN(n)) return "";
+    var sym = (cur && cur !== "AUD") ? (cur + " ") : "$";
+    return sym + n.toFixed(2);
+  }
+
+  function statusClass(s) {
+    s = (s || "").toLowerCase();
+    if (/cancel|declin|refund|void|disput/.test(s)) return "out";
+    if (/ship|complet|deliver/.test(s)) return "in";
+    if (/await|pend|process|partial|manual|hold/.test(s)) return "low";
+    return "chk";
+  }
+
+  function fmtDate(s) {
+    if (!s) return "";
+    var d = new Date(s);
+    if (isNaN(d.getTime())) return s;
+    return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  }
+
+  function kv(parent, k, v) {
+    if (v == null || v === "") return;
+    var row = el("div", "kv");
+    row.appendChild(el("span", "k", k));
+    row.appendChild(el("span", "v", v));
+    parent.appendChild(row);
+  }
+
+  function render(d) {
+    var order = (d && d.order && d.order.id) ? d.order : (d && d.id ? d : null);
+    var products = (d && Array.isArray(d.products)) ? d.products : [];
+
+    if (!order || !order.id) { setState("No order found with that number."); return; }
+
+    resultsEl.innerHTML = "";
+    var card = el("div", "card");
+
+    var head = el("div", "ohead");
+    head.appendChild(el("div", "onum", "Order #" + order.id));
+    head.appendChild(el("span", "pill " + statusClass(order.status), order.status || "—"));
+    card.appendChild(head);
+    card.appendChild(el("div", "date", fmtDate(order.date_created)));
+
+    var b = order.billing_address || {};
+    var name = [b.first_name, b.last_name].filter(Boolean).join(" ");
+    kv(card, "Customer", name);
+    kv(card, "Email", b.email);
+    var pay = order.payment_status ? (order.payment_status + (order.payment_method ? " · " + order.payment_method : "")) : order.payment_method;
+    kv(card, "Payment", pay);
+    if (Number(order.items_shipped) > 0 || Number(order.items_total) > 0) {
+      kv(card, "Items shipped", (order.items_shipped || 0) + " / " + (order.items_total || 0));
+    }
+
+    if (products.length) {
+      var sec = el("div", "sec");
+      sec.appendChild(el("div", "sec-label", "Items"));
+      products.forEach(function (p) {
+        var it = el("div", "item");
+        it.appendChild(el("span", "qty", (p.quantity || 1) + "×"));
+        var nm = el("div", "nm");
+        nm.appendChild(document.createTextNode(p.name || "Item"));
+        if (p.sku) nm.appendChild(el("span", "sku", p.sku));
+        it.appendChild(nm);
+        it.appendChild(el("span", "pr", money(p.total_inc_tax != null ? p.total_inc_tax : p.price_inc_tax, order.currency_code)));
+        sec.appendChild(it);
+      });
+      card.appendChild(sec);
+    }
+
+    var cur = order.currency_code;
+    var totals = el("div", "");
+    kv(totals, "Subtotal", money(order.subtotal_inc_tax, cur));
+    kv(totals, "Shipping", money(order.shipping_cost_inc_tax, cur));
+    if (Number(order.discount_amount) > 0) kv(totals, "Discount", "-" + money(order.discount_amount, cur));
+    card.appendChild(totals);
+
+    var tot = el("div", "total");
+    tot.appendChild(el("span", null, "Total"));
+    tot.appendChild(el("span", null, money(order.total_inc_tax, cur)));
+    card.appendChild(tot);
+
+    if (order.customer_message) {
+      var m = el("div", "msg");
+      m.appendChild(el("strong", null, "Customer note: "));
+      m.appendChild(document.createTextNode(order.customer_message));
+      card.appendChild(m);
+    }
+    if (order.staff_notes) {
+      var sn = el("div", "msg");
+      sn.appendChild(el("strong", null, "Staff notes: "));
+      sn.appendChild(document.createTextNode(order.staff_notes));
+      card.appendChild(sn);
+    }
+
+    var act = el("div", "actions");
+    var a = el("a", "open", "Open in BigCommerce →");
+    a.href = STORE_ADMIN + order.id;
+    a.target = "_blank"; a.rel = "noopener";
+    act.appendChild(a);
+    card.appendChild(act);
+
+    resultsEl.appendChild(card);
+  }
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var query = input.value.trim();
+    if (!query) return;
+    btn.disabled = true;
+    setState("Looking up…");
+
+    fetch(WEBHOOK, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query: query })
+    })
+      .then(function (res) {
+        if (res.status === 404) throw new Error("No order found with that number.");
+        if (!res.ok) throw new Error("Server returned " + res.status);
+        return res.text();
+      })
+      .then(function (raw) {
+        if (!raw || !raw.trim()) { setState("No order found with that number."); return; }
+        var data;
+        try { data = JSON.parse(raw); }
+        catch (e) { throw new Error("The reply wasn't readable. Check the webhook response is set to JSON."); }
+        render(data);
+      })
+      .catch(function (err) {
+        var cors = (err.message || "").indexOf("Failed to fetch") !== -1;
+        setState(cors ? "Couldn't reach the lookup. Make sure the scenario is on and the webhook allows browser access." : err.message, true);
+      })
+      .then(function () { btn.disabled = false; });
+  });
+})();
+</script>
+</body>
+</html>
