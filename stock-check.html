@@ -6,134 +6,61 @@
 <title>Stock Check</title>
 <style>
   :root {
-    --bg: #ffffff;
-    --surface: #f6f5f3;
-    --border: #e4e1db;
-    --text: #1c1b19;
-    --muted: #807a70;
-    --accent: #c8761b;        /* warm amber, like a lit bulb */
-    --accent-press: #a9621433;
-    --in: #2f8a4c;
-    --in-bg: #e7f3ea;
-    --low: #b07406;
-    --low-bg: #fbf1dc;
-    --out: #c2412f;
-    --out-bg: #fbe9e6;
-    --radius: 10px;
-    --shadow: 0 1px 2px rgba(0,0,0,.05);
+    --bg:#ffffff; --surface:#f6f5f3; --border:#e4e1db; --text:#1c1b19; --muted:#807a70;
+    --accent:#c8761b; --accent-press:#a9621433;
+    --in:#2f8a4c; --in-bg:#e7f3ea; --low:#b07406; --low-bg:#fbf1dc;
+    --out:#c2412f; --out-bg:#fbe9e6; --check:#5a5550; --check-bg:#eceae6;
+    --radius:10px; --shadow:0 1px 2px rgba(0,0,0,.05);
   }
   @media (prefers-color-scheme: dark) {
     :root {
-      --bg: #1c1b19;
-      --surface: #262422;
-      --border: #38352f;
-      --text: #f0ede7;
-      --muted: #9a948a;
-      --accent: #e0902f;
-      --in: #5fce86; --in-bg: #1d2e22;
-      --low: #e0b257; --low-bg: #2e2616;
-      --out: #f08a78; --out-bg: #2e1c19;
-      --shadow: none;
+      --bg:#1c1b19; --surface:#262422; --border:#38352f; --text:#f0ede7; --muted:#9a948a;
+      --accent:#e0902f;
+      --in:#5fce86; --in-bg:#1d2e22; --low:#e0b257; --low-bg:#2e2616;
+      --out:#f08a78; --out-bg:#2e1c19; --check:#b8b2a8; --check-bg:#2b2925; --shadow:none;
     }
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; }
+  * { box-sizing:border-box; }
+  html, body { margin:0; }
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    line-height: 1.45;
-    padding: 14px;
-    -webkit-font-smoothing: antialiased;
+    background:var(--bg); color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    font-size:14px; line-height:1.45; padding:14px; -webkit-font-smoothing:antialiased;
   }
-  h1 {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin: 0 0 12px;
-  }
-  form { display: flex; gap: 6px; margin-bottom: 14px; }
+  h1 { font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin:0 0 12px; }
+  form { display:flex; gap:6px; margin-bottom:14px; }
   input[type="text"] {
-    flex: 1;
-    min-width: 0;
-    padding: 9px 11px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    background: var(--bg);
-    color: var(--text);
-    font-size: 14px;
+    flex:1; min-width:0; padding:9px 11px; border:1px solid var(--border);
+    border-radius:var(--radius); background:var(--bg); color:var(--text); font-size:14px;
   }
-  input[type="text"]:focus {
-    outline: 2px solid var(--accent);
-    outline-offset: 1px;
-    border-color: var(--accent);
-  }
-  button {
-    font-family: inherit;
-    cursor: pointer;
-    border: none;
-    border-radius: var(--radius);
-  }
-  .check {
-    padding: 9px 14px;
-    background: var(--accent);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 600;
-    white-space: nowrap;
-  }
-  .check:disabled { opacity: .55; cursor: default; }
-
-  .state { color: var(--muted); padding: 18px 4px; text-align: center; font-size: 13px; }
-  .state.error { color: var(--out); text-align: left; }
-
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 12px;
-    margin-bottom: 9px;
-    box-shadow: var(--shadow);
-  }
-  .name { font-weight: 600; margin-bottom: 4px; word-break: break-word; }
-  .sku {
-    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-    font-size: 12px;
-    color: var(--muted);
-    word-break: break-all;
-    margin-bottom: 10px;
-  }
-  .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-  .stock { display: flex; align-items: baseline; gap: 6px; }
-  .qty { font-size: 22px; font-weight: 700; line-height: 1; }
-  .pill {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .03em;
-    text-transform: uppercase;
-    padding: 3px 8px;
-    border-radius: 999px;
-  }
-  .pill.in  { color: var(--in);  background: var(--in-bg); }
-  .pill.low { color: var(--low); background: var(--low-bg); }
-  .pill.out { color: var(--out); background: var(--out-bg); }
-  .copy {
-    padding: 6px 10px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--text);
-    font-size: 12px;
-    font-weight: 600;
-  }
-  .copy:active { background: var(--accent-press); }
-  .copy.done { color: var(--in); border-color: var(--in); }
-
+  input[type="text"]:focus { outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent); }
+  button { font-family:inherit; cursor:pointer; border:none; border-radius:var(--radius); }
+  .check { padding:9px 14px; background:var(--accent); color:#fff; font-size:14px; font-weight:600; white-space:nowrap; }
+  .check:disabled { opacity:.55; cursor:default; }
+  .state { color:var(--muted); padding:18px 4px; text-align:center; font-size:13px; }
+  .state.error { color:var(--out); text-align:left; }
+  .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:9px; box-shadow:var(--shadow); }
+  .name { font-weight:600; margin-bottom:3px; word-break:break-word; }
+  .sku { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--muted); word-break:break-all; margin-bottom:8px; }
+  .supplier { font-size:12px; color:var(--muted); margin-bottom:10px; }
+  .supplier strong { color:var(--text); font-weight:600; }
+  .row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .stock { display:flex; align-items:baseline; gap:6px; }
+  .qty { font-size:22px; font-weight:700; line-height:1; }
+  .qty.dim { color:var(--muted); font-size:15px; }
+  .pill { font-size:11px; font-weight:700; letter-spacing:.03em; text-transform:uppercase; padding:3px 8px; border-radius:999px; }
+  .pill.in { color:var(--in); background:var(--in-bg); }
+  .pill.low { color:var(--low); background:var(--low-bg); }
+  .pill.out { color:var(--out); background:var(--out-bg); }
+  .pill.chk { color:var(--check); background:var(--check-bg); }
+  .note { margin-top:10px; font-size:12px; line-height:1.4; color:var(--text); background:var(--check-bg); border-radius:8px; padding:8px 10px; }
+  .note .lbl { display:block; font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-bottom:2px; }
+  .copy { padding:6px 10px; background:transparent; border:1px solid var(--border); color:var(--text); font-size:12px; font-weight:600; }
+  .copy:active { background:var(--accent-press); }
+  .copy.done { color:var(--in); border-color:var(--in); }
   @media (prefers-reduced-motion: no-preference) {
-    .card { animation: rise .18s ease both; }
-    @keyframes rise { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+    .card { animation:rise .18s ease both; }
+    @keyframes rise { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
   }
 </style>
 </head>
@@ -150,8 +77,10 @@
   "use strict";
 
   // The Make webhook that looks up stock in BigCommerce.
-  // If Make gives you a new webhook URL, paste it here.
   var WEBHOOK = "https://hook.us2.make.com/kptft8c6n7n7lw6g933xmgyllcy5uhyw";
+
+  // Brand-ID -> supplier reference, built from your Supplier Reference sheet.
+  var SUPPLIERS = {"734":{"brand":"3A Lighting","supplier":"3A Lighting","how":"Need to email supplier — or call if urgent","freq":"No"},"593":{"brand":"Aromas","supplier":"Lightco","how":"Need to email supplier — or call if urgent","freq":"No"},"135":{"brand":"Bingli","supplier":"Bingli","how":"Stock Available on Shared Drive, Next shipment date available on selected products. Need to email supplier if no ETA.","freq":"No"},"527":{"brand":"Bover","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"466":{"brand":"Brass Lighting Systems","supplier":"Zest Lighting","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine","freq":"No"},"745":{"brand":"Brilliant Lighting","supplier":"Mercator","how":"Need to email supplier — or call if urgent","freq":"Monthly"},"251":{"brand":"By Rydens","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"139":{"brand":"Cafe Lighting & Living","supplier":"Cafe Lighting & Living","how":"Check Front Main inbox","freq":"Monthly"},"151":{"brand":"CLA Lighting","supplier":"CLA Lighting","how":"Check Front Main inbox","freq":"Monthly"},"176":{"brand":"Cougar Lighting","supplier":"Cougar Lighting","how":"Stock QTY and ETA available on the Website. Stock report - Check Front Main inbox for. Need to email supplier if no ETA.","freq":"Monthly"},"157":{"brand":"Domus Lighting","supplier":"Domus","how":"Check Front Main inbox","freq":"Monthly"},"563":{"brand":"Dulora (Previously LiquidLEDs)","supplier":"LiquidLEDs / Dulora","how":"QTY available on trade site, Out of stock items ETA need to email supplier","freq":"No"},"274":{"brand":"EBB & Flow","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"589":{"brand":"Eglo Fans","supplier":"Eglo","how":"Stock QTY and ETA available on B2B Website. Need to email supplier of no ETA.","freq":"Monthly"},"252":{"brand":"Eglo Lighting","supplier":"Eglo","how":"Stock QTY and ETA available on B2B Website. Need to email supplier of no ETA.","freq":"Monthly"},"722":{"brand":"Element Lighting","supplier":"Element Lighting","how":"Check website if in stock; for specifically required quantities, need to email supplier","freq":"When required"},"575":{"brand":"Elstead","supplier":"LightCo","how":"Need to email supplier — or call if urgent","freq":"No"},"138":{"brand":"Emac & Lawton","supplier":"Florabelle Living","how":"Stock QTY and ETA available on B2B Website. Need to email supplier of no ETA.","freq":"Monthly"},"441":{"brand":"Fabbian","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"254":{"brand":"Fanetti","supplier":"Amonson Lighting","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When stock report is available"},"134":{"brand":"Fiorentino Imports","supplier":"Fiorentino Imports","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"292":{"brand":"G&G Brothers / G&G Bros","supplier":"G&G Brothers / G&G Bros","how":"For zero stock and no eta need to email supplier — or call if urgent","freq":"Monthly"},"443":{"brand":"Gypset Cargo","supplier":"Gypset Cargo","how":"Check emails - Pervez personal inbox","freq":"When stock report is available"},"551":{"brand":"IP44.de","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"574":{"brand":"Italamp","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"440":{"brand":"Ideal Lux","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"Monthly"},"465":{"brand":"Lawell Lighting","supplier":"Lawell Lighting","how":"Need to email supplier — or call if urgent","freq":"No"},"150":{"brand":"Lexi Lighting","supplier":"Lexi Lighting","how":"Stock Avail on Website, Next shipment date available on selected products. Need to email supplier if no ETA.","freq":"Monthly"},"736":{"brand":"Lighting Creations","supplier":"Lighting Creations","how":"Check website if in stock; for specifically required quantities, need to email supplier","freq":"When required"},"241":{"brand":"Lighting Inspirations (Previously Lode International)","supplier":"Lighting Inspirations","how":"In stock tag on supplier portal, for large quantity requirements email supplier to confirm","freq":"Monthly"},"499":{"brand":"Lighting Republic","supplier":"LightCo","how":"Need to email supplier — or call if urgent","freq":"No"},"737":{"brand":"Lunarglow","supplier":"Lunarglow","how":"Need to email supplier — or call if urgent","freq":"No"},"554":{"brand":"Lusion","supplier":"Lusion","how":"Need to email supplier — or call if urgent","freq":"No"},"512":{"brand":"Luxxuria Collection","supplier":"Zest Lighting","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine","freq":"No"},"706":{"brand":"Marc Pascal","supplier":"Marc Pascal","how":"Pre-order/Custom made items. Need to email supplier","freq":"No"},"379":{"brand":"Martec","supplier":"Martec","how":"ETA need to email supplier — or call if urgent","freq":"Monthly"},"714":{"brand":"MDA Lighting","supplier":"Martec","how":"ETA need to email supplier — or call if urgent","freq":"Monthly"},"152":{"brand":"Mercator","supplier":"Mercator","how":"Stock QTY and ETA available also available on B2B Website","freq":"Monthly"},"541":{"brand":"Milan","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"291":{"brand":"Modern Lights","supplier":"Modern Lights","how":"Stock Avail on Website","freq":"No"},"590":{"brand":"Mullan","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"564":{"brand":"New Oriental Trading","supplier":"New Oriental Trading","how":"Need to email supplier — or call if urgent","freq":"No"},"581":{"brand":"Nifti","supplier":"Nifti","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine, default lead time 12 weeks","freq":"No"},"230":{"brand":"Nordlux","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"Monthly"},"562":{"brand":"Norlys","supplier":"LightCo","how":"Need to email supplier — or call if urgent","freq":"No"},"184":{"brand":"NUD Collection","supplier":"NUD Collection","how":"Ask Pervez, default lead time is 12 weeks","freq":"No"},"149":{"brand":"Oriel Lighting","supplier":"Oriel Lighting","how":"Stock uploaded to BC weekly. Check latest email stock report if needed. Orders via Oriel portal","freq":"Monthly"},"131":{"brand":"PHL","supplier":"PHL","how":"New supplier - need to email","freq":"No"},"447":{"brand":"POTT Project","supplier":"Klaylife","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"716":{"brand":"QZAO","supplier":"Alain Luminaires","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"442":{"brand":"Roger Pradier","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"475":{"brand":"Seaside Lighting","supplier":"Seaside Lighting","how":"QTY & ETA need to confirm via Email - info@seasidelighting.com.au — or call if urgent","freq":"No"},"229":{"brand":"Shawik","supplier":"Shawik","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"591":{"brand":"She Lights","supplier":"She Lights","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When stock report is available"},"587":{"brand":"Sheraton Lighting","supplier":"Crystal Palace Lighting","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When required"},"500":{"brand":"Solar Lighting Direct","supplier":"Solar Lighting Direct","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When stock report is available"},"259":{"brand":"Superlux","supplier":"Superlux","how":"In stock tag on Website, OOS ETA confirm via Email","freq":"Monthly"},"183":{"brand":"Telbix","supplier":"Telbix","how":"Check emails and ETA available on website","freq":"Monthly"},"504":{"brand":"Tittideco","supplier":"Tittideco","how":"12 weeks lead time by default","freq":"No"},"720":{"brand":"TLI Lighting","supplier":"TLI Lighting","how":"Need to email supplier — or call if urgent","freq":"No"},"308":{"brand":"UGE Lighting","supplier":"UGE Lighting","how":"Need to request stock report from supplier via email — or call if urgent","freq":"Monthly"},"553":{"brand":"Urban Electric Co.","supplier":"Bloomingdales Lighting","how":"In stock tag on B2B site, for low stock items need to confirm via Email","freq":"No"},"437":{"brand":"Vario","supplier":"Zest Lighting","how":"Check Cin7 Products Module or ask warehouse/manager","freq":"Weekly"},"237":{"brand":"Vencha","supplier":"Vencha","how":"Stock Avail on Website; OOS ETA confirm via Email","freq":"Monthly"},"464":{"brand":"Vibe Lighting","supplier":"ANL Lighting","how":"Next Shipment ETA available on the stock report for selected products. Need to email supplier if no ETA specified.","freq":"Monthly"},"54":{"brand":"Viore Design","supplier":"Zest Lighting","how":"Check Cin7 Products Module or ask warehouse/manager","freq":"Weekly"},"552":{"brand":"VISO","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"269":{"brand":"Visual Comfort","supplier":"Bloomingdales Lighting","how":"In stock tag on B2B site, for low stock items need to confirm via Email","freq":"No"},"719":{"brand":"Wisteria","supplier":"Design Trove","how":"check portal; if OOS, need to email supplier — or call if urgent","freq":"When required"},"513":{"brand":"Yubo Lighting","supplier":"Zest Lighting","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine","freq":"No"},"207":{"brand":"Zaffero","supplier":"Florabelle Living","how":"Stock QTY and ETA available on B2B Website. Need to email supplier if no ETA.","freq":"Monthly"}};
 
   var form = document.getElementById("form");
   var input = document.getElementById("q");
@@ -174,7 +103,6 @@
     return undefined;
   }
 
-  // Accept lots of possible shapes coming back from Make / BigCommerce.
   function normalise(data) {
     var list = [];
     if (Array.isArray(data)) list = data;
@@ -184,12 +112,23 @@
 
     return list.map(function (item) {
       var qty = pick(item, ["stock", "inventory_level", "inventory", "qty", "quantity"]);
+      var brandId = pick(item, ["brand_id", "brandId"]);
+      var ref = brandId != null ? SUPPLIERS[String(brandId)] : null;
       return {
         name: pick(item, ["name", "product_name", "title"]) || "Unnamed product",
         sku: pick(item, ["sku", "code", "Sku", "SKU"]) || "—",
-        stock: Number(qty != null ? qty : 0)
+        stock: Number(qty != null ? qty : 0),
+        supplier: ref ? ref.supplier : "",
+        how: ref ? ref.how : "",
+        freq: ref ? ref.freq : ""
       };
     });
+  }
+
+  // BigCommerce only keeps stock accurate for brands it updates on a cadence.
+  function bcReliable(freq) {
+    var f = (freq || "").toLowerCase();
+    return f.indexOf("dai") !== -1 || f.indexOf("week") !== -1 || f.indexOf("month") !== -1;
   }
 
   function statusFor(n) {
@@ -198,47 +137,68 @@
     return { cls: "in", label: "In stock" };
   }
 
+  function el(tag, cls, text) {
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+
   function render(items) {
     if (!items.length) { setState("No products matched that. Try a different code or name."); return; }
     resultsEl.innerHTML = "";
+
     items.forEach(function (it) {
-      var s = statusFor(it.stock);
+      var reliable = bcReliable(it.freq);
+      var card = el("div", "card");
+      card.appendChild(el("div", "name", it.name));
+      card.appendChild(el("div", "sku", it.sku));
 
-      var card = document.createElement("div");
-      card.className = "card";
+      if (it.supplier) {
+        var sup = el("div", "supplier");
+        sup.innerHTML = "Supplier: <strong></strong>";
+        sup.querySelector("strong").textContent = it.supplier;
+        card.appendChild(sup);
+      }
 
-      var name = document.createElement("div");
-      name.className = "name"; name.textContent = it.name;
+      var row = el("div", "row");
+      var stock = el("div", "stock");
+      if (reliable) {
+        var s = statusFor(it.stock);
+        stock.appendChild(el("span", "qty", it.stock));
+        stock.appendChild(el("span", "pill " + s.cls, s.label));
+      } else {
+        stock.appendChild(el("span", "qty dim", "BC: " + it.stock));
+        stock.appendChild(el("span", "pill chk", "Check manually"));
+      }
+      row.appendChild(stock);
 
-      var sku = document.createElement("div");
-      sku.className = "sku"; sku.textContent = it.sku;
-
-      var row = document.createElement("div");
-      row.className = "row";
-
-      var stock = document.createElement("div");
-      stock.className = "stock";
-      var qtyEl = document.createElement("span");
-      qtyEl.className = "qty"; qtyEl.textContent = it.stock;
-      var pill = document.createElement("span");
-      pill.className = "pill " + s.cls; pill.textContent = s.label;
-      stock.appendChild(qtyEl); stock.appendChild(pill);
-
-      var copy = document.createElement("button");
-      copy.className = "copy"; copy.type = "button"; copy.textContent = "Copy";
+      var copy = el("button", "copy", "Copy");
+      copy.type = "button";
       copy.addEventListener("click", function () {
-        var text = it.name + " (" + it.sku + "): " + it.stock + " in stock";
+        var text;
+        if (reliable) {
+          text = it.name + " (" + it.sku + ") — " + (it.supplier ? it.supplier + " — " : "") + it.stock + " in stock";
+        } else {
+          text = it.name + " (" + it.sku + ") — " + (it.supplier ? it.supplier + " — " : "") +
+                 "stock not tracked on BC. " + (it.how || "Check with supplier.");
+        }
         navigator.clipboard.writeText(text).then(function () {
           copy.textContent = "Copied"; copy.classList.add("done");
           setTimeout(function () { copy.textContent = "Copy"; copy.classList.remove("done"); }, 1400);
         });
       });
-
-      row.appendChild(stock);
       row.appendChild(copy);
-      card.appendChild(name);
-      card.appendChild(sku);
       card.appendChild(row);
+
+      // Show the how-to-check note: always for manual brands, as a reminder for tracked ones.
+      if (it.how) {
+        var note = el("div", "note");
+        note.appendChild(el("span", "lbl", reliable ? "How to verify" : "How to check stock"));
+        note.appendChild(document.createTextNode(it.how));
+        card.appendChild(note);
+      }
+
       resultsEl.appendChild(card);
     });
   }
@@ -247,7 +207,6 @@
     e.preventDefault();
     var query = input.value.trim();
     if (!query) return;
-
     btn.disabled = true;
     setState("Checking…");
 
@@ -268,12 +227,7 @@
       })
       .catch(function (err) {
         var cors = (err.message || "").indexOf("Failed to fetch") !== -1;
-        setState(
-          cors
-            ? "Couldn't reach the lookup. Make sure the scenario is on and the webhook allows browser access."
-            : err.message,
-          true
-        );
+        setState(cors ? "Couldn't reach the lookup. Make sure the scenario is on and the webhook allows browser access." : err.message, true);
       })
       .then(function () { btn.disabled = false; });
   });
