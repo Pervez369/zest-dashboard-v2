@@ -169,9 +169,23 @@
       .then(function (raw) {
         var d = JSON.parse(raw);
         var list = (d && Array.isArray(d.data)) ? d.data : (Array.isArray(d) ? d : []);
-        var match = null;
+        // Find the product AND the exact variant matching this line's SKU.
+        var match = null, variant = null;
         for (var i = 0; i < list.length; i++) {
-          if (String(list[i].sku).toLowerCase() === String(sku).toLowerCase()) { match = list[i]; break; }
+          var p = list[i];
+          if (Array.isArray(p.variants)) {
+            for (var v = 0; v < p.variants.length; v++) {
+              if (String(p.variants[v].sku).toLowerCase() === String(sku).toLowerCase()) {
+                match = p; variant = p.variants[v]; break;
+              }
+            }
+          }
+          if (match) break;
+        }
+        if (!match) {
+          for (var j = 0; j < list.length; j++) {
+            if (String(list[j].sku).toLowerCase() === String(sku).toLowerCase()) { match = list[j]; break; }
+          }
         }
         if (!match && list.length) match = list[0];
         if (!match) { metaEl.textContent = "No catalog match"; return; }
@@ -181,7 +195,8 @@
         for (var c = 0; c < cats.length; c++) {
           if (SUPPLIERS[String(cats[c])]) { ref = SUPPLIERS[String(cats[c])]; break; }
         }
-        var stock = Number(match.inventory_level || 0);
+        // Variant stock when we matched a variant; otherwise the product level.
+        var stock = variant ? Number(variant.inventory_level || 0) : Number(match.inventory_level || 0);
         var reliable = ref ? bcReliable(ref.freq) : true;
 
         metaEl.innerHTML = "";
