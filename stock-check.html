@@ -118,6 +118,7 @@
         name: pick(item, ["name", "product_name", "title"]) || "Unnamed product",
         sku: pick(item, ["sku", "code", "Sku", "SKU"]) || "—",
         stock: Number(qty != null ? qty : 0),
+        matched: !!ref,
         supplier: ref ? ref.supplier : "",
         how: ref ? ref.how : "",
         freq: ref ? ref.freq : ""
@@ -149,7 +150,8 @@
     resultsEl.innerHTML = "";
 
     items.forEach(function (it) {
-      var reliable = bcReliable(it.freq);
+      // Unknown brand -> trust the number. Known brand -> use its cadence.
+      var showNumber = !it.matched || bcReliable(it.freq);
       var card = el("div", "card");
       card.appendChild(el("div", "name", it.name));
       card.appendChild(el("div", "sku", it.sku));
@@ -163,7 +165,7 @@
 
       var row = el("div", "row");
       var stock = el("div", "stock");
-      if (reliable) {
+      if (showNumber) {
         var s = statusFor(it.stock);
         stock.appendChild(el("span", "qty", it.stock));
         stock.appendChild(el("span", "pill " + s.cls, s.label));
@@ -177,7 +179,7 @@
       copy.type = "button";
       copy.addEventListener("click", function () {
         var text;
-        if (reliable) {
+        if (showNumber) {
           text = it.name + " (" + it.sku + ") — " + (it.supplier ? it.supplier + " — " : "") + it.stock + " in stock";
         } else {
           text = it.name + " (" + it.sku + ") — " + (it.supplier ? it.supplier + " — " : "") +
@@ -194,7 +196,7 @@
       // Show the how-to-check note: always for manual brands, as a reminder for tracked ones.
       if (it.how) {
         var note = el("div", "note");
-        note.appendChild(el("span", "lbl", reliable ? "How to verify" : "How to check stock"));
+        note.appendChild(el("span", "lbl", showNumber ? "How to verify" : "How to check stock"));
         note.appendChild(document.createTextNode(it.how));
         card.appendChild(note);
       }
