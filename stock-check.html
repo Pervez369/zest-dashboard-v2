@@ -53,11 +53,15 @@
   .pill.low { color:var(--low); background:var(--low-bg); }
   .pill.out { color:var(--out); background:var(--out-bg); }
   .pill.chk { color:var(--chk); background:var(--chk-bg); }
+  .prices { font-size:12px; color:var(--muted); margin-top:8px; }
+  .prices b { color:var(--text); font-weight:600; }
   .sec-label { font-size:10px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin:2px 0 4px; }
   .vrow { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; padding:6px 0; border-top:1px dashed var(--border); }
   .vmeta { display:flex; flex-direction:column; min-width:0; }
   .vlabel-txt { font-weight:600; font-size:13px; }
   .vsku { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:11px; color:var(--muted); margin-top:1px; word-break:break-all; }
+  .vprice { font-size:11px; color:var(--muted); margin-top:3px; }
+  .vprice b { color:var(--text); font-weight:600; }
   .vqty { font-weight:700; font-size:16px; font-variant-numeric:tabular-nums; white-space:nowrap; }
   .vqty.in { color:var(--in); } .vqty.low { color:var(--low); } .vqty.out { color:var(--out); }
   .note { margin-top:10px; font-size:12px; line-height:1.4; color:var(--text); background:var(--chk-bg); border-radius:8px; padding:8px 10px; }
@@ -115,6 +119,21 @@
     return undefined;
   }
 
+  function money(v) {
+    if (v == null || v === "") return "";
+    var n = Number(v);
+    if (isNaN(n)) return "";
+    return "$" + n.toFixed(2);
+  }
+
+  // "Online $X · Cost $Y" — shows whichever values are present.
+  function priceText(price, cost) {
+    var parts = [];
+    if (money(price)) parts.push("Online " + money(price));
+    if (money(cost)) parts.push("Cost " + money(cost));
+    return parts.join("  ·  ");
+  }
+
   function normalise(data) {
     var list = [];
     if (Array.isArray(data)) list = data;
@@ -143,7 +162,13 @@
           var opts = Array.isArray(v.option_values)
             ? v.option_values.map(function (o) { return o.label; }).filter(Boolean).join(" / ")
             : "";
-          return { sku: v.sku || "", label: opts, stock: Number(v.inventory_level || 0) };
+          return {
+            sku: v.sku || "",
+            label: opts,
+            stock: Number(v.inventory_level || 0),
+            price: pick(v, ["calculated_price", "price"]),
+            cost: pick(v, ["cost_price"])
+          };
         });
       }
 
@@ -151,6 +176,8 @@
         name: pick(item, ["name", "product_name", "title"]) || "Unnamed product",
         sku: pick(item, ["sku", "code", "Sku", "SKU"]) || "—",
         stock: Number(qty != null ? qty : 0),
+        price: pick(item, ["calculated_price", "price"]),
+        cost: pick(item, ["cost_price"]),
         variants: variants,
         matched: !!ref,
         supplier: ref ? ref.supplier : "",
@@ -209,13 +236,20 @@
           var meta = el("div", "vmeta");
           meta.appendChild(el("span", "vlabel-txt", v.label || "Option"));
           if (v.sku) meta.appendChild(el("span", "vsku", v.sku));
+          var pt = priceText(v.price, v.cost);
+          if (pt) {
+            var pe = el("span", "vprice");
+            pe.innerHTML = pt.replace(/Online (\S+)/, "Online <b>$1</b>").replace(/Cost (\S+)/, "Cost <b>$1</b>");
+            meta.appendChild(pe);
+          }
           vr.appendChild(meta);
           vr.appendChild(el("span", "vqty " + statusFor(v.stock).cls, String(v.stock)));
           card.appendChild(vr);
         });
 
         var lines = it.variants.map(function (v) {
-          return "  " + (v.label ? v.label + " " : "") + v.sku + ": " + v.stock;
+          var pt = priceText(v.price, v.cost);
+          return "  " + (v.label ? v.label + " " : "") + v.sku + ": " + v.stock + (pt ? " — " + pt : "");
         });
         var ctext = it.name + (it.supplier ? " (" + it.supplier + ")" : "") + ":\n" + lines.join("\n");
         var crow = el("div", "copyrow");
@@ -237,9 +271,17 @@
           ctext = it.name + " (" + it.sku + ") — " + (it.supplier ? it.supplier + " — " : "") +
                   "stock not tracked on BC. " + (it.how || "Check with supplier.");
         }
+        var pt = priceText(it.price, it.cost);
+        if (pt) ctext += " — " + pt;
         row.appendChild(stock);
         row.appendChild(makeCopy(ctext));
         card.appendChild(row);
+
+        if (pt) {
+          var pe = el("div", "prices");
+          pe.innerHTML = pt.replace(/Online (\S+)/, "Online <b>$1</b>").replace(/Cost (\S+)/, "Cost <b>$1</b>");
+          card.appendChild(pe);
+        }
       }
 
       if (it.how) {
