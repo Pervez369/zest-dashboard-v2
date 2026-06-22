@@ -41,6 +41,8 @@
   .state.error { color:var(--out); text-align:left; }
   .card { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:12px; margin-bottom:9px; box-shadow:var(--shadow); }
   .name { font-weight:600; margin-bottom:3px; word-break:break-word; }
+  .name a { color:var(--accent); text-decoration:none; }
+  .name a:hover { text-decoration:underline; }
   .sku { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:12px; color:var(--muted); word-break:break-all; margin-bottom:8px; }
   .supplier { font-size:12px; color:var(--muted); margin-bottom:10px; }
   .supplier strong { color:var(--text); font-weight:600; }
@@ -89,6 +91,8 @@
   "use strict";
 
   var WEBHOOK = "https://hook.us2.make.com/kptft8c6n7n7lw6g933xmgyllcy5uhyw";
+  // Storefront base for product links. Change if a product lives on a different site.
+  var STORE_URL = "https://www.zestlighting.com.au";
   var SUPPLIERS = {"734":{"brand":"3A Lighting","supplier":"3A Lighting","how":"Need to email supplier — or call if urgent","freq":"No"},"593":{"brand":"Aromas","supplier":"Lightco","how":"Need to email supplier — or call if urgent","freq":"No"},"135":{"brand":"Bingli","supplier":"Bingli","how":"Stock Available on Shared Drive, Next shipment date available on selected products. Need to email supplier if no ETA.","freq":"No"},"527":{"brand":"Bover","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"466":{"brand":"Brass Lighting Systems","supplier":"Zest Lighting","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine","freq":"No"},"745":{"brand":"Brilliant Lighting","supplier":"Mercator","how":"Need to email supplier — or call if urgent","freq":"Monthly"},"251":{"brand":"By Rydens","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"139":{"brand":"Cafe Lighting & Living","supplier":"Cafe Lighting & Living","how":"Check Front Main inbox","freq":"Monthly"},"151":{"brand":"CLA Lighting","supplier":"CLA Lighting","how":"Check Front Main inbox","freq":"Monthly"},"176":{"brand":"Cougar Lighting","supplier":"Cougar Lighting","how":"Stock QTY and ETA available on the Website. Stock report - Check Front Main inbox for. Need to email supplier if no ETA.","freq":"Monthly"},"157":{"brand":"Domus Lighting","supplier":"Domus","how":"Check Front Main inbox","freq":"Monthly"},"563":{"brand":"Dulora (Previously LiquidLEDs)","supplier":"LiquidLEDs / Dulora","how":"QTY available on trade site, Out of stock items ETA need to email supplier","freq":"No"},"274":{"brand":"EBB & Flow","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"589":{"brand":"Eglo Fans","supplier":"Eglo","how":"Stock QTY and ETA available on B2B Website. Need to email supplier of no ETA.","freq":"Monthly"},"252":{"brand":"Eglo Lighting","supplier":"Eglo","how":"Stock QTY and ETA available on B2B Website. Need to email supplier of no ETA.","freq":"Monthly"},"722":{"brand":"Element Lighting","supplier":"Element Lighting","how":"Check website if in stock; for specifically required quantities, need to email supplier","freq":"When required"},"575":{"brand":"Elstead","supplier":"LightCo","how":"Need to email supplier — or call if urgent","freq":"No"},"138":{"brand":"Emac & Lawton","supplier":"Florabelle Living","how":"Stock QTY and ETA available on B2B Website. Need to email supplier of no ETA.","freq":"Monthly"},"441":{"brand":"Fabbian","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"254":{"brand":"Fanetti","supplier":"Amonson Lighting","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When stock report is available"},"134":{"brand":"Fiorentino Imports","supplier":"Fiorentino Imports","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"292":{"brand":"G&G Brothers / G&G Bros","supplier":"G&G Brothers / G&G Bros","how":"For zero stock and no eta need to email supplier — or call if urgent","freq":"Monthly"},"443":{"brand":"Gypset Cargo","supplier":"Gypset Cargo","how":"Check emails - Pervez personal inbox","freq":"When stock report is available"},"551":{"brand":"IP44.de","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"574":{"brand":"Italamp","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"440":{"brand":"Ideal Lux","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"Monthly"},"465":{"brand":"Lawell Lighting","supplier":"Lawell Lighting","how":"Need to email supplier — or call if urgent","freq":"No"},"150":{"brand":"Lexi Lighting","supplier":"Lexi Lighting","how":"Stock Avail on Website, Next shipment date available on selected products. Need to email supplier if no ETA.","freq":"Monthly"},"736":{"brand":"Lighting Creations","supplier":"Lighting Creations","how":"Check website if in stock; for specifically required quantities, need to email supplier","freq":"When required"},"241":{"brand":"Lighting Inspirations (Previously Lode International)","supplier":"Lighting Inspirations","how":"In stock tag on supplier portal, for large quantity requirements email supplier to confirm","freq":"Monthly"},"499":{"brand":"Lighting Republic","supplier":"LightCo","how":"Need to email supplier — or call if urgent","freq":"No"},"737":{"brand":"Lunarglow","supplier":"Lunarglow","how":"Need to email supplier — or call if urgent","freq":"No"},"554":{"brand":"Lusion","supplier":"Lusion","how":"Need to email supplier — or call if urgent","freq":"No"},"512":{"brand":"Luxxuria Collection","supplier":"Zest Lighting","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine","freq":"No"},"706":{"brand":"Marc Pascal","supplier":"Marc Pascal","how":"Pre-order/Custom made items. Need to email supplier","freq":"No"},"379":{"brand":"Martec","supplier":"Martec","how":"ETA need to email supplier — or call if urgent","freq":"Monthly"},"714":{"brand":"MDA Lighting","supplier":"Martec","how":"ETA need to email supplier — or call if urgent","freq":"Monthly"},"152":{"brand":"Mercator","supplier":"Mercator","how":"Stock QTY and ETA available also available on B2B Website","freq":"Monthly"},"541":{"brand":"Milan","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"291":{"brand":"Modern Lights","supplier":"Modern Lights","how":"Stock Avail on Website","freq":"No"},"590":{"brand":"Mullan","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"564":{"brand":"New Oriental Trading","supplier":"New Oriental Trading","how":"Need to email supplier — or call if urgent","freq":"No"},"581":{"brand":"Nifti","supplier":"Nifti","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine, default lead time 12 weeks","freq":"No"},"230":{"brand":"Nordlux","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"Monthly"},"562":{"brand":"Norlys","supplier":"LightCo","how":"Need to email supplier — or call if urgent","freq":"No"},"184":{"brand":"NUD Collection","supplier":"NUD Collection","how":"Ask Pervez, default lead time is 12 weeks","freq":"No"},"149":{"brand":"Oriel Lighting","supplier":"Oriel Lighting","how":"Stock uploaded to BC weekly. Check latest email stock report if needed. Orders via Oriel portal","freq":"Monthly"},"131":{"brand":"PHL","supplier":"PHL","how":"New supplier - need to email","freq":"No"},"447":{"brand":"POTT Project","supplier":"Klaylife","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"716":{"brand":"QZAO","supplier":"Alain Luminaires","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"442":{"brand":"Roger Pradier","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"475":{"brand":"Seaside Lighting","supplier":"Seaside Lighting","how":"QTY & ETA need to confirm via Email - info@seasidelighting.com.au — or call if urgent","freq":"No"},"229":{"brand":"Shawik","supplier":"Shawik","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"No"},"591":{"brand":"She Lights","supplier":"She Lights","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When stock report is available"},"587":{"brand":"Sheraton Lighting","supplier":"Crystal Palace Lighting","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When required"},"500":{"brand":"Solar Lighting Direct","supplier":"Solar Lighting Direct","how":"QTY & ETA need to confirm via Email — or call if urgent","freq":"When stock report is available"},"259":{"brand":"Superlux","supplier":"Superlux","how":"In stock tag on Website, OOS ETA confirm via Email","freq":"Monthly"},"183":{"brand":"Telbix","supplier":"Telbix","how":"Check emails and ETA available on website","freq":"Monthly"},"504":{"brand":"Tittideco","supplier":"Tittideco","how":"12 weeks lead time by default","freq":"No"},"720":{"brand":"TLI Lighting","supplier":"TLI Lighting","how":"Need to email supplier — or call if urgent","freq":"No"},"308":{"brand":"UGE Lighting","supplier":"UGE Lighting","how":"Need to request stock report from supplier via email — or call if urgent","freq":"Monthly"},"553":{"brand":"Urban Electric Co.","supplier":"Bloomingdales Lighting","how":"In stock tag on B2B site, for low stock items need to confirm via Email","freq":"No"},"437":{"brand":"Vario","supplier":"Zest Lighting","how":"Check Cin7 Products Module or ask warehouse/manager","freq":"Weekly"},"237":{"brand":"Vencha","supplier":"Vencha","how":"Stock Avail on Website; OOS ETA confirm via Email","freq":"Monthly"},"464":{"brand":"Vibe Lighting","supplier":"ANL Lighting","how":"Next Shipment ETA available on the stock report for selected products. Need to email supplier if no ETA specified.","freq":"Monthly"},"54":{"brand":"Viore Design","supplier":"Zest Lighting","how":"Check Cin7 Products Module or ask warehouse/manager","freq":"Weekly"},"552":{"brand":"VISO","supplier":"Form Lighting","how":"Need to email Form Lighting — or call if urgent","freq":"No"},"269":{"brand":"Visual Comfort","supplier":"Bloomingdales Lighting","how":"In stock tag on B2B site, for low stock items need to confirm via Email","freq":"No"},"719":{"brand":"Wisteria","supplier":"Design Trove","how":"check portal; if OOS, need to email supplier — or call if urgent","freq":"When required"},"513":{"brand":"Yubo Lighting","supplier":"Zest Lighting","how":"Need to check with Thea via Wechat, confirm with Pervez/Ellaine","freq":"No"},"207":{"brand":"Zaffero","supplier":"Florabelle Living","how":"Stock QTY and ETA available on B2B Website. Need to email supplier if no ETA.","freq":"Monthly"}};
 
   var form = document.getElementById("form");
@@ -126,12 +130,25 @@
     return "$" + n.toFixed(2);
   }
 
-  // "Online $X · Cost $Y" — shows whichever values are present.
-  function priceText(price, cost) {
+  // "RRP $X · Online $Y · Cost $Z" — shows whichever values are present.
+  function priceText(rrp, online, cost) {
     var parts = [];
-    if (money(price)) parts.push("Online " + money(price));
+    if (money(rrp)) parts.push("RRP " + money(rrp));
+    if (money(online)) parts.push("Online " + money(online));
     if (money(cost)) parts.push("Cost " + money(cost));
     return parts.join("  ·  ");
+  }
+
+  function boldMoney(s) {
+    return s.replace(/\$\d[\d.,]*/g, "<b>$&</b>");
+  }
+
+  function priceFields(o) {
+    return {
+      rrp: pick(o, ["price"]),
+      online: pick(o, ["calculated_price", "price"]),
+      cost: pick(o, ["cost_price"])
+    };
   }
 
   function normalise(data) {
@@ -162,22 +179,21 @@
           var opts = Array.isArray(v.option_values)
             ? v.option_values.map(function (o) { return o.label; }).filter(Boolean).join(" / ")
             : "";
-          return {
-            sku: v.sku || "",
-            label: opts,
-            stock: Number(v.inventory_level || 0),
-            price: pick(v, ["calculated_price", "price"]),
-            cost: pick(v, ["cost_price"])
-          };
+          var pf = priceFields(v);
+          return { sku: v.sku || "", label: opts, stock: Number(v.inventory_level || 0),
+                   rrp: pf.rrp, online: pf.online, cost: pf.cost };
         });
       }
+
+      var pf = priceFields(item);
+      var url = (item.custom_url && item.custom_url.url) ? item.custom_url.url : "";
 
       return {
         name: pick(item, ["name", "product_name", "title"]) || "Unnamed product",
         sku: pick(item, ["sku", "code", "Sku", "SKU"]) || "—",
+        url: url,
         stock: Number(qty != null ? qty : 0),
-        price: pick(item, ["calculated_price", "price"]),
-        cost: pick(item, ["cost_price"]),
+        rrp: pf.rrp, online: pf.online, cost: pf.cost,
         variants: variants,
         matched: !!ref,
         supplier: ref ? ref.supplier : "",
@@ -210,6 +226,19 @@
     return copy;
   }
 
+  function nameNode(it) {
+    var wrap = el("div", "name");
+    if (it.url) {
+      var a = el("a", null, it.name);
+      a.href = STORE_URL.replace(/\/$/, "") + it.url;
+      a.target = "_blank"; a.rel = "noopener";
+      wrap.appendChild(a);
+    } else {
+      wrap.textContent = it.name;
+    }
+    return wrap;
+  }
+
   function render(items) {
     if (!items.length) { setState("No products matched that. Try a different code or name."); return; }
     resultsEl.innerHTML = "";
@@ -219,7 +248,7 @@
       var showNumber = !it.matched || bcReliable(it.freq);
 
       var card = el("div", "card");
-      card.appendChild(el("div", "name", it.name));
+      card.appendChild(nameNode(it));
       if (!multi) card.appendChild(el("div", "sku", it.sku));
 
       if (it.supplier) {
@@ -236,19 +265,15 @@
           var meta = el("div", "vmeta");
           meta.appendChild(el("span", "vlabel-txt", v.label || "Option"));
           if (v.sku) meta.appendChild(el("span", "vsku", v.sku));
-          var pt = priceText(v.price, v.cost);
-          if (pt) {
-            var pe = el("span", "vprice");
-            pe.innerHTML = pt.replace(/Online (\S+)/, "Online <b>$1</b>").replace(/Cost (\S+)/, "Cost <b>$1</b>");
-            meta.appendChild(pe);
-          }
+          var pt = priceText(v.rrp, v.online, v.cost);
+          if (pt) { var pe = el("span", "vprice"); pe.innerHTML = boldMoney(pt); meta.appendChild(pe); }
           vr.appendChild(meta);
           vr.appendChild(el("span", "vqty " + statusFor(v.stock).cls, String(v.stock)));
           card.appendChild(vr);
         });
 
         var lines = it.variants.map(function (v) {
-          var pt = priceText(v.price, v.cost);
+          var pt = priceText(v.rrp, v.online, v.cost);
           return "  " + (v.label ? v.label + " " : "") + v.sku + ": " + v.stock + (pt ? " — " + pt : "");
         });
         var ctext = it.name + (it.supplier ? " (" + it.supplier + ")" : "") + ":\n" + lines.join("\n");
@@ -271,17 +296,13 @@
           ctext = it.name + " (" + it.sku + ") — " + (it.supplier ? it.supplier + " — " : "") +
                   "stock not tracked on BC. " + (it.how || "Check with supplier.");
         }
-        var pt = priceText(it.price, it.cost);
+        var pt = priceText(it.rrp, it.online, it.cost);
         if (pt) ctext += " — " + pt;
         row.appendChild(stock);
         row.appendChild(makeCopy(ctext));
         card.appendChild(row);
 
-        if (pt) {
-          var pe = el("div", "prices");
-          pe.innerHTML = pt.replace(/Online (\S+)/, "Online <b>$1</b>").replace(/Cost (\S+)/, "Cost <b>$1</b>");
-          card.appendChild(pe);
-        }
+        if (pt) { var pe = el("div", "prices"); pe.innerHTML = boldMoney(pt); card.appendChild(pe); }
       }
 
       if (it.how) {
