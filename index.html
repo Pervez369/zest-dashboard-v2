@@ -278,22 +278,22 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
     <!-- Stacked panels: Drive + Scratchpad -->
     <div class="side-panels">
 
-      <!-- GOOGLE DRIVE QUICK LINKS -->
-      <div class="side-panel side-panel-drive">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
-          <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">📁 Drive</span>
-          <a href="https://drive.google.com" target="_blank" style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);text-decoration:none;transition:color .12s" onmouseover="this.style.color='var(--gold)'" onmouseout="this.style.color='var(--muted)'">Open →</a>
-        </div>
-        <div style="padding:10px 12px;display:flex;flex-direction:column;gap:2px;overflow-y:auto;flex:1">
-          <a class="ql-a" href="https://drive.google.com/drive/my-drive" target="_blank"><span class="qi">🏠</span> My Drive <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://drive.google.com/drive/recent" target="_blank"><span class="qi">🕐</span> Recent <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://drive.google.com/drive/shared-with-me" target="_blank"><span class="qi">👥</span> Shared with me <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://drive.google.com/drive/starred" target="_blank"><span class="qi">⭐</span> Starred <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://docs.new" target="_blank"><span class="qi"><img src="https://www.gstatic.com/images/branding/product/1x/docs_2020q4_32dp.png" width="13" height="13" style="vertical-align:middle"></span> New Doc <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://sheets.new" target="_blank"><span class="qi"><img src="https://www.gstatic.com/images/branding/product/1x/sheets_2020q4_32dp.png" width="13" height="13" style="vertical-align:middle"></span> New Sheet <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://slides.new" target="_blank"><span class="qi"><img src="https://www.gstatic.com/images/branding/product/1x/slides_2020q4_32dp.png" width="13" height="13" style="vertical-align:middle"></span> New Slides <span class="ql-arr">→</span></a>
-        </div>
-      </div>
+      <!-- HABIT QUICK LINKS -->
+     <div class="side-panel side-panel-drive">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
+    <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">✓ Daily Routine</span>
+    <span id="rt-count" style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)">0 of 5</span>
+  </div>
+  <div id="rt-list" style="flex:1;overflow-y:auto;padding:6px 12px"></div>
+  <div style="padding:10px 14px;border-top:1px solid var(--bdr);flex-shrink:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+      <span style="font-size:11.5px;color:var(--muted2)">Deep work</span>
+      <span id="rt-timer" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--gold)">0:00</span>
+    </div>
+    <input id="rt-what" class="inp" placeholder="Working on…" style="font-size:11px;padding:5px 9px;margin-bottom:6px">
+    <button id="rt-btn" class="btn-ghost" onclick="rtToggle()" style="width:100%;padding:5px">Start</button>
+  </div>
+</div>
 
       <!-- KEEP-STYLE NOTES -->
       <div class="side-panel side-panel-scratch">
@@ -540,7 +540,38 @@ async function addTask(){
   btn.textContent='+ Add';btn.disabled=false;
   setTimeout(()=>{status.textContent='';},3000);
 }
-
+  
+// ══ DAILY ROUTINE ══
+const RT_ITEMS=["Check Asana for today's tasks","Triage Front inbox","Scan Slack channels","Review yesterday's numbers","End of day: inbox zero"];
+const rtKey=()=>'z_rt_'+new Date().toLocaleDateString('en-CA');
+let rtState=JSON.parse(localStorage.getItem(rtKey())||'{"done":[],"sec":0,"what":""}');
+function rtSave(){localStorage.setItem(rtKey(),JSON.stringify(rtState));}
+function rtRender(){
+  document.getElementById('rt-list').innerHTML=RT_ITEMS.map((t,i)=>{
+    const d=rtState.done.includes(i);
+    return `<div onclick="rtTick(${i})" style="display:flex;align-items:center;gap:9px;padding:7px 4px;cursor:pointer;border-bottom:1px solid var(--bdr)">
+      <div class="task-cb${d?' done':''}" style="pointer-events:none">${d?'✓':''}</div>
+      <span style="font-size:11.5px;line-height:1.35;color:${d?'var(--muted)':'var(--muted2)'};text-decoration:${d?'line-through':'none'}">${t}</span></div>`;
+  }).join('');
+  document.getElementById('rt-count').textContent=rtState.done.length+' of '+RT_ITEMS.length;
+}
+function rtTick(i){const k=rtState.done.indexOf(i);k<0?rtState.done.push(i):rtState.done.splice(k,1);rtSave();rtRender();}
+let rtInt=null;
+function rtFmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
+function rtToggle(){
+  const b=document.getElementById('rt-btn');
+  if(rtInt){clearInterval(rtInt);rtInt=null;b.textContent='Resume';rtSave();return;}
+  b.textContent='Pause';
+  rtInt=setInterval(()=>{rtState.sec++;document.getElementById('rt-timer').textContent=rtFmt(rtState.sec);if(rtState.sec%15===0)rtSave();},1000);
+}
+(function(){
+  Object.keys(localStorage).forEach(k=>{if(k.startsWith('z_rt_')&&k!==rtKey())localStorage.removeItem(k);});
+  const w=document.getElementById('rt-what');w.value=rtState.what||'';
+  w.addEventListener('input',()=>{rtState.what=w.value;rtSave();});
+  document.getElementById('rt-timer').textContent=rtFmt(rtState.sec||0);
+  rtRender();
+})();
+  
 // ══ SLACK ══
 const CHANNELS={
   'C0AKP4YCYAV':{name:'ops-check-in',color:'#4a80d4'},
@@ -585,37 +616,27 @@ const SEED_MSGS=[
 ];
 let feedData=[...SEED_MSGS],slackOpen=false;
 
+function slackRows(){const s=new Set();return feedData.filter(m=>{const k=m.ch+'|'+(m.text||m.html||'');if(s.has(k))return false;s.add(k);return true;});}
+function msgRow(m){
+  const txt=(m.text||m.html||m.msg||'').replace(/<[^>]+>/g,'');
+  const url=m.url||CH_URLS[m.ch]||'https://slack.com';
+  return `<a href="${url}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)">
+    <div style="width:7px;height:7px;border-radius:2px;background:${m.color};flex-shrink:0;margin-top:4px"></div>
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:baseline;gap:5px;margin-bottom:2px"><span class="slack-ch">#${m.ch}</span><span class="slack-time">${m.time}</span></div>
+    <div class="slack-msg">${txt}</div></div></a>`;
+}
 function renderChannelDots(){
-  const seen=new Set(feedData.map(m=>m.ch));
-  const el=document.getElementById('slack-channels');
-  el.innerHTML=[...seen].map(ch=>{
-    const cfg=Object.values(CHANNELS).find(c=>c.name===ch)||{name:ch,color:'#8090a8'};
-    const url=CH_URLS[ch]||'https://slack.com';
-    return `<a class="slack-ch-row" href="${url}" target="_blank"><div class="slack-dot" style="background:${cfg.color}"></div><span class="slack-ch-name">#${ch}</span></a>`;
-  }).join('');
+  const seen=new Set(),top=[];
+  for(const m of slackRows()){if(seen.has(m.ch))continue;seen.add(m.ch);top.push(m);if(top.length>=3)break;}
+  document.getElementById('slack-channels').innerHTML=top.map(msgRow).join('')||'<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';
 }
 
 function renderFeed(){
-  const filter=(document.getElementById('slack-filter')?.value||'').toLowerCase().trim();
-  const body=m=>(m.text||m.html||m.msg||'').replace(/<[^>]+>/g,'');
-  const filtered=filter?feedData.filter(m=>m.ch.toLowerCase().includes(filter)||body(m).toLowerCase().includes(filter)):feedData;
+  const f=(document.getElementById('slack-filter')?.value||'').toLowerCase().trim();
+  const all=slackRows();
+  const list=f?all.filter(m=>m.ch.toLowerCase().includes(f)||(m.text||m.html||'').toLowerCase().includes(f)):all;
   const el=document.getElementById('slack-feed');
-  if(!filtered.length){el.innerHTML='<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';return;}
-  el.innerHTML=filtered.slice(0,10).map(m=>{
-    const rowUrl=m.url||CH_URLS[m.ch]||'https://slack.com';
-    const txt=body(m);
-    return `<a class="slack-item" href="${rowUrl}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)">
-      <div style="width:7px;height:7px;border-radius:2px;background:${m.color};flex-shrink:0;margin-top:4px"></div>
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:baseline;gap:5px;margin-bottom:2px">
-          <span class="slack-ch">#${m.ch}</span>
-          <span class="slack-who">${m.who}</span>
-          <span class="slack-time">${m.time}</span>
-        </div>
-        <div class="slack-msg">${txt}</div>
-      </div>
-    </a>`;
-  }).join('');
+  el.innerHTML=list.length?list.slice(0,15).map(msgRow).join(''):'<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';
 }
 
 function toggleSlack(){
