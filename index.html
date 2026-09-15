@@ -56,37 +56,38 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .inp:focus{border-color:var(--gold)}
 .btn-s{background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:6px;padding:4px 9px;font-size:9px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .12s;white-space:nowrap}
 .btn-s:hover{border-color:var(--gold);color:var(--gold)}
-.ql{display:flex;flex-direction:column;gap:3px}
-.ql-a{display:flex;align-items:center;gap:9px;padding:7px 9px;border-radius:7px;text-decoration:none;color:var(--muted2);font-size:11.5px;transition:all .12s;border:1px solid transparent}
-.ql-a:hover{background:var(--surf);color:var(--text);border-color:var(--bdr)}
-.ql-a .qi{width:16px;text-align:center;flex-shrink:0;font-size:13px}
-.ql-arr{margin-left:auto;color:var(--muted);font-size:10px;opacity:.5}
+
+/* ── DAILY SUMMARIES CARD ── */
+.ds-list{flex:1;max-height:300px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent;display:flex;flex-direction:column}
+.ds-item{display:block;text-decoration:none;padding:10px 2px;border-bottom:1px solid var(--bdr);transition:opacity .12s}
+.ds-item:last-child{border-bottom:none}
+.ds-item:hover{opacity:.8}
+.ds-time{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--gold);letter-spacing:.06em;margin-bottom:5px}
+.ds-body{font-size:12px;color:var(--muted2);line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.ds-empty{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:14px 0;text-align:center;opacity:.7}
 
 /* ── SIDE PANEL ── */
 .side-weather{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--bdr);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0}
 .wx-temp{font-size:13px;font-weight:500;color:var(--muted2)}
 
 /* Slack */
-.side-slack{padding:14px 20px;border-bottom:1px solid var(--bdr);flex-shrink:0}
-.slack-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px}
+.side-slack{padding:14px 20px;border-bottom:1px solid var(--bdr);flex-shrink:0;display:flex;flex-direction:column;min-height:0}
+.slack-head{display:flex;align-items:center;justify-content:space-between;cursor:pointer;margin-bottom:8px;flex-shrink:0}
 .slack-head-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px}
 .slack-expand-btn{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.06em;transition:color .12s;padding:0}
 .slack-expand-btn:hover{color:var(--gold)}
-.slack-channels{display:flex;flex-direction:column;gap:2px}
-.slack-ch-row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;text-decoration:none;transition:background .12s}
-.slack-ch-row:hover{background:var(--surf)}
-.slack-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.slack-ch-name{font-size:11px;color:var(--muted2);flex:1}
-.slack-feed-wrap{margin-top:10px;display:none}
-.slack-feed-wrap.open{display:block}
-.slack-filter-row{display:flex;gap:6px;margin-bottom:8px}
+.slack-channels{display:flex;flex-direction:column;gap:2px;max-height:200px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.slack-feed-wrap{margin-top:10px;display:none;flex-direction:column;min-height:0}
+.slack-feed-wrap.open{display:flex}
+.slack-filter-row{display:flex;gap:6px;margin-bottom:8px;flex-shrink:0}
 .slack-filter{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:4px 8px;font-size:11px;font-family:'Epilogue',sans-serif;color:var(--text);outline:none}
 .slack-filter:focus{border-color:var(--gold)}
 .slack-filter::placeholder{color:var(--muted)}
+#slack-feed{max-height:280px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
 .slack-ch{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--blue)}
 .slack-who{font-size:10px;color:var(--muted)}
-.slack-time{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-left:auto}
-.slack-msg{font-size:11px;color:var(--muted2);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slack-time{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-left:auto;flex-shrink:0}
+.slack-msg{font-size:11px;color:var(--muted2);line-height:1.5;white-space:pre-wrap;word-break:break-word}
 .ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:4px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
@@ -212,17 +213,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-label">⚡ Quick Actions</div>
-        <div class="ql">
-          <a class="ql-a" href="https://login.xero.com/identity/connect/authorize?client_id=xero_reporting_hybrid-web&redirect_uri=https%3A%2F%2Freporting.xero.com%2Fsignin-oidc&response_mode=form_post&response_type=code%20id_token&scope=xero_all-apis%20openid%20email%20profile&state=OpenIdConnect.AuthenticationProperties%3D6P8R5zF4DguDvJSAT3aE5aBRtUlT4RKnhwsVTYpELwo91Y-qBrHFsDm-1AQ3eFBpLy6HoRklrMe-I9vsh0AJOVwqSewriFNINXGloCEIJNa-5EFbwqTOQspHBrSKlOivZmoHZhDOCoafFGFnB_LJYP0sAOncC3Rtszco8h3k9KFqs-q_rfFvaK-RHJmETetqMQFoAmoL699o-SiQy7SYvuwQrMcYF-cX1shu2VjPYRYXAohm1DQOg-mRVf3cOZ7h-dvVZP68F9S4s47tI6goSA&nonce=639089119749575882.MmMwNGU5MmUtYWUyZS00MGVlLTllZTQtOTEzYWUxYWM4ZjA5MWM5NzU3NDktZmExNy00OGM4LTk0YzUtNmYwYTFlNjUwZDJm&x-client-SKU=ID_NET451&x-client-ver=1.3.16.0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Xero P&amp;L <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://store-pvv5u2d.mybigcommerce.com/manage/analytics/overview" target="_blank"><span class="qi"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> BC Analytics <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Google Ads <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://insights.cin7.com/Frontend#/" target="_blank"><span class="qi"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Cin7 Insights <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://pervez369.github.io/adwords-dashboard/" target="_blank"><span class="qi">📊</span> Adwords Dashboard <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://app-ap1.hubspot.com/contacts/21975795/objects/0-1/views/47517982/list" target="_blank"><span class="qi"><img src="https://icon.horse/icon/hubspot.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> HubSpot Contacts <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://app-ap1.hubspot.com/contacts/21975795/objects/0-3/views/47703386/board" target="_blank"><span class="qi"><img src="https://icon.horse/icon/hubspot.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> HubSpot Deals <span class="ql-arr">→</span></a>
+      <div class="card" style="display:flex;flex-direction:column">
+        <div class="card-label">
+          <span>☀ Daily Summaries</span>
+          <a class="card-link" href="https://app.slack.com/client/TCGD7QVGC/C0AM8UMUQFL" target="_blank">Open →</a>
         </div>
+        <div class="ds-list" id="ds-list"></div>
       </div>
     </div>
 
@@ -275,7 +271,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
       </div>
     </div>
 
-    <!-- Stacked panels: Drive + Scratchpad -->
+    <!-- Stacked panels: Routine + Notes -->
     <div class="side-panels">
 
       <!-- HABIT QUICK LINKS -->
@@ -460,7 +456,7 @@ renderKeep();
 
 
 
-// ══ GOOGLE DRIVE ══
+// ══ HELPERS ══
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ══ ASANA ══
@@ -540,7 +536,7 @@ async function addTask(){
   btn.textContent='+ Add';btn.disabled=false;
   setTimeout(()=>{status.textContent='';},3000);
 }
-  
+
 // ══ DAILY ROUTINE ══
 const RT_ITEMS=["Check Asana for today's tasks","Triage Front inbox","Scan Slack channels","Review yesterday's numbers","End of day: inbox zero"];
 const rtKey=()=>'z_rt_'+new Date().toLocaleDateString('en-CA');
@@ -571,15 +567,15 @@ function rtToggle(){
   document.getElementById('rt-timer').textContent=rtFmt(rtState.sec||0);
   rtRender();
 })();
-  
+
 // ══ SLACK ══
+// missed-calls removed — hidden everywhere via HIDDEN_CHANNELS below
 const CHANNELS={
   'C0AKP4YCYAV':{name:'ops-check-in',color:'#4a80d4'},
   'C0AKP523N9F':{name:'mktg-check-in',color:'#3a9e6a'},
   'C0AL07ST94Y':{name:'purchase-orders',color:'#c47f17'},
   'C0AKB520J0L':{name:'dispatch',color:'#c45050'},
   'C0AJZ65PAQK':{name:'quotes',color:'#7b5ea7'},
-  'C08MVN2T996':{name:'missed-calls',color:'#c45050'},
   'C02L40TCHSA':{name:'the-dream-team',color:'#3a9e6a'},
   'C04SY841RA8':{name:'marketing',color:'#4a80d4'},
   'C04P24YT3UY':{name:'ops-chat',color:'#4a80d4'},
@@ -595,7 +591,6 @@ const CH_URLS={
   'purchase-orders':'https://app.slack.com/client/TCGD7QVGC/C0AL07ST94Y',
   'dispatch':'https://app.slack.com/client/TCGD7QVGC/C0AKB520J0L',
   'quotes':'https://app.slack.com/client/TCGD7QVGC/C0AJZ65PAQK',
-  'missed-calls':'https://app.slack.com/client/TCGD7QVGC/C08MVN2T996',
   'the-dream-team':'https://app.slack.com/client/TCGD7QVGC/C02L40TCHSA',
   'marketing':'https://app.slack.com/client/TCGD7QVGC/C04SY841RA8',
   'ops-chat':'https://app.slack.com/client/TCGD7QVGC/C04P24YT3UY',
@@ -606,37 +601,69 @@ const CH_URLS={
   'daily-summaries':'https://app.slack.com/client/TCGD7QVGC/C0AM8UMUQFL',
 };
 const PROXY='https://zest-slack-proxy.onrender.com';
+// channels never shown anywhere on the dashboard
+const HIDDEN_CHANNELS=['missed-calls'];
+// daily-summaries lives in its own card in the main column, so it's kept out of the sidebar
+const MAIN_CARD_CHANNELS=['daily-summaries'];
 const SEED_MSGS=[
   {ch:'dispatch',who:'Pervez',time:'Today 4:46pm',html:'Test',color:'#c45050'},
   {ch:'quotes',who:'Dominic',time:'Today 4:45pm',html:'QUOTE-49371 · Martellotm · $445.54 — Created on Cin7',color:'#7b5ea7'},
   {ch:'dispatch',who:'Make.com',time:'Today 3:00pm',html:'Order 19946 Dispatched — Michelle Cassidy · $1,178 · Direct Freight',color:'#c45050'},
   {ch:'purchase-orders',who:'Dominic',time:'Today 2:15pm',html:'PO-49367 · Emac and Lawton · $2,920.50 — Created',color:'#c47f17'},
-  {ch:'missed-calls',who:'Mas',time:'Feb 27',html:'Sorted — Cosmo',color:'#c45050'},
   {ch:'daily-summaries',who:'Make.com',time:'Today 7:00am',html:'Daily summary ready — 3 POs, 8 dispatches, 2 quotes pending review',color:'#3a9e6a'},
 ];
 let feedData=[...SEED_MSGS],slackOpen=false;
 
-function slackRows(){const s=new Set();return feedData.filter(m=>{const k=m.ch+'|'+(m.text||m.html||'');if(s.has(k))return false;s.add(k);return true;});}
+// all messages, deduped, minus hidden channels
+function slackRows(){
+  const s=new Set();
+  return feedData
+    .filter(m=>!HIDDEN_CHANNELS.includes(m.ch))
+    .filter(m=>{const k=m.ch+'|'+(m.text||m.html||'');if(s.has(k))return false;s.add(k);return true;});
+}
+// sidebar view = everything except channels that have their own main-column card
+function sidebarRows(){return slackRows().filter(m=>!MAIN_CARD_CHANNELS.includes(m.ch));}
+// main-column daily summaries card
+function summaryRows(){return slackRows().filter(m=>m.ch==='daily-summaries');}
+
 function msgRow(m){
   const txt=(m.text||m.html||m.msg||'').replace(/<[^>]+>/g,'');
   const url=m.url||CH_URLS[m.ch]||'https://slack.com';
-  return `<a href="${url}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)">
+  return `<a href="${url}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--bdr)">
     <div style="width:7px;height:7px;border-radius:2px;background:${m.color};flex-shrink:0;margin-top:4px"></div>
-    <div style="flex:1;min-width:0"><div style="display:flex;align-items:baseline;gap:5px;margin-bottom:2px"><span class="slack-ch">#${m.ch}</span><span class="slack-time">${m.time}</span></div>
-    <div class="slack-msg">${txt}</div></div></a>`;
+    <div style="flex:1;min-width:0"><div style="display:flex;align-items:baseline;gap:5px;margin-bottom:3px"><span class="slack-ch">#${m.ch}</span><span class="slack-time">${m.time}</span></div>
+    <div class="slack-msg">${escHtml(txt)}</div></div></a>`;
 }
+
 function renderChannelDots(){
   const seen=new Set(),top=[];
-  for(const m of slackRows()){if(seen.has(m.ch))continue;seen.add(m.ch);top.push(m);if(top.length>=3)break;}
+  for(const m of sidebarRows()){if(seen.has(m.ch))continue;seen.add(m.ch);top.push(m);if(top.length>=3)break;}
   document.getElementById('slack-channels').innerHTML=top.map(msgRow).join('')||'<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';
 }
 
 function renderFeed(){
   const f=(document.getElementById('slack-filter')?.value||'').toLowerCase().trim();
-  const all=slackRows();
+  const all=sidebarRows();
   const list=f?all.filter(m=>m.ch.toLowerCase().includes(f)||(m.text||m.html||'').toLowerCase().includes(f)):all;
   const el=document.getElementById('slack-feed');
-  el.innerHTML=list.length?list.slice(0,15).map(msgRow).join(''):'<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';
+  el.innerHTML=list.length?list.slice(0,20).map(msgRow).join(''):'<div style="font-size:11px;color:var(--muted);padding:6px 0">No messages</div>';
+}
+
+function renderDailySummaries(){
+  const el=document.getElementById('ds-list');
+  const rows=summaryRows();
+  if(!rows.length){
+    el.innerHTML='<div class="ds-empty">No summaries yet.<br>New one lands each morning at 7am.</div>';
+    return;
+  }
+  el.innerHTML=rows.slice(0,10).map(m=>{
+    const txt=(m.text||m.html||'').replace(/<[^>]+>/g,'');
+    const url=m.url||CH_URLS['daily-summaries'];
+    return `<a class="ds-item" href="${url}" target="_blank">
+      <div class="ds-time">${m.time}</div>
+      <div class="ds-body">${escHtml(txt)}</div>
+    </a>`;
+  }).join('');
 }
 
 function toggleSlack(){
@@ -646,6 +673,7 @@ function toggleSlack(){
   if(slackOpen)renderFeed();
 }
 
+// keep seed daily-summaries visible if the proxy has nothing for that channel yet
 const PINNED_CHANNELS=['daily-summaries'];
 async function liveRefresh(){
   try{
@@ -654,7 +682,7 @@ async function liveRefresh(){
       const proxyChs=new Set(d.messages.map(m=>m.ch));
       const kept=feedData.filter(m=>PINNED_CHANNELS.includes(m.ch)&&!proxyChs.has(m.ch));
       feedData=[...d.messages,...kept];
-      renderChannelDots();if(slackOpen)renderFeed();return true;
+      renderChannelDots();renderDailySummaries();if(slackOpen)renderFeed();return true;
     }
   }catch(e){}
   return false;
@@ -663,7 +691,7 @@ function doRefresh(){
   const btn=document.getElementById('refresh-btn');btn.textContent='⏳';btn.disabled=true;
   liveRefresh().then(ok=>{btn.textContent=ok?'✓':'✗';setTimeout(()=>{btn.textContent='↻';btn.disabled=false;},1500);});
 }
-renderChannelDots();liveRefresh();setInterval(liveRefresh,60000);
+renderChannelDots();renderDailySummaries();liveRefresh();setInterval(liveRefresh,60000);
 
 // ══ QUOTES ══
 const QUOTES=[
@@ -722,14 +750,14 @@ function gcalSignIn(){}// legacy no-op
 
 async function loadCalendarEvents(){
   const el=document.getElementById('cal-events');
-  if(!gcalToken||Date.now()>=gcalToken.expires_at){showGcalSignIn();return;}
+  if(!gcalToken||Date.now()>=gcalToken.expires_at){el.innerHTML='<div style="font-size:10px;color:var(--muted);font-family:\'DM Mono\',monospace">Reconnecting…</div>';return;}
   const now=new Date().toISOString();
   const url=`https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(GCAL_EMAIL)}/events?timeMin=${now}&maxResults=5&singleEvents=true&orderBy=startTime`;
   try{
     const r=await fetch(url,{headers:{'Authorization':'Bearer '+gcalToken.access_token}});
     const d=await r.json();
     if(d.error){
-      if(d.error.code===401){localStorage.removeItem('z_gcal_token');gcalToken=null;showGcalSignIn();return;}
+      if(d.error.code===401){gcalToken=null;refreshGcalToken();return;}
       el.innerHTML=`<div style="font-size:10px;color:var(--red);font-family:'DM Mono',monospace">${d.error.message}</div>`;return;
     }
     const items=d.items||[];
