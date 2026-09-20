@@ -64,10 +64,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .task-name:hover{color:var(--text)}
 .task-name.done{text-decoration:line-through;color:var(--muted)}
 .sec-label{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:8px 0 3px;border-top:1px solid var(--bdr);margin-top:2px}
-.task-list-scroll{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.task-list-scroll{flex:1;min-height:0;max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
 .proj-select{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted2);background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:2px 6px;cursor:pointer;outline:none;max-width:140px;transition:border-color .12s}
 .proj-select:focus{border-color:var(--gold)}
-.task-add{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)}
+.task-add{display:flex;gap:6px;margin-top:auto;padding-top:10px;border-top:1px solid var(--bdr)}
 .inp{width:100%;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;color:var(--text);font-size:12px;font-family:'Epilogue',sans-serif;outline:none;transition:border-color .12s}
 .inp::placeholder{color:var(--muted)}
 .inp:focus{border-color:var(--gold)}
