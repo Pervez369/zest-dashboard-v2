@@ -24,20 +24,37 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .ai-btn{display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:6px;text-decoration:none;font-size:11px;font-weight:500;font-family:'Epilogue',sans-serif;color:var(--muted2);border:1px solid var(--bdr);transition:all .13s;background:var(--bg2)}
 .ai-btn:hover{border-color:var(--bdr2);color:var(--text);background:var(--surf)}
 .tb-div{width:1px;height:16px;background:var(--bdr2);margin:0 2px}
-.focus-hero{background:var(--bg2);border:1px solid var(--bdr);border-radius:14px;padding:22px 24px;position:relative;overflow:hidden}
-.focus-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent 60%)}
-.focus-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px}
-.focus-input{width:100%;background:transparent;border:none;outline:none;font-family:'Epilogue',sans-serif;font-size:20px;font-weight:500;color:var(--text);caret-color:var(--gold);letter-spacing:-.3px;line-height:1.3}
-.focus-input::placeholder{color:var(--muted)}
-.focus-meta{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--bdr)}
-.focus-hint{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);letter-spacing:.06em}
-.focus-clear{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);cursor:pointer;background:none;border:none;letter-spacing:.06em;transition:color .12s}
-.focus-clear:hover{color:var(--red)}
+
+/* ── RHYTHM BAR (replaces the old focus hero) ── */
+.rhythm{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:11px 18px;position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-height:44px}
+.rhythm::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--gold),transparent 60%)}
+.rh-item{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted2)}
+.rh-item a{color:inherit;text-decoration:none;transition:color .12s}
+.rh-item a:hover{color:var(--gold)}
+.rh-item.done{color:var(--muted);opacity:.65}
+.rh-tick{font-size:9px;color:var(--green)}
+.rh-item.now{color:var(--gold);font-weight:600}
+.rh-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse 2s infinite}
+.rh-time{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.04em}
+.rh-sep{color:var(--surf2);font-size:10px;user-select:none}
+.rh-right{margin-left:auto;display:flex;align-items:center;gap:6px}
+.rh-quiet{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.05em}
+.rh-gym{display:flex;align-items:center;gap:6px;text-decoration:none;font-size:11px;color:var(--gold);border:1px solid rgba(196,127,23,.25);border-radius:7px;padding:4px 10px;transition:all .13s;background:rgba(196,127,23,.06)}
+.rh-gym:hover{background:rgba(196,127,23,.13);border-color:rgba(196,127,23,.45)}
+.rh-gym .arr{opacity:.6;font-size:10px}
+.rh-gym.floor{opacity:.6}
+.rh-gym.full{opacity:.45}
+.rh-gym-tick{background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:6px;width:24px;height:24px;font-size:11px;cursor:pointer;transition:all .12s;line-height:1}
+.rh-gym-tick:hover{border-color:var(--gold);color:var(--gold)}
+.rh-gym-tick.on{border-color:var(--green);color:var(--green)}
+
 .under-focus{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .card{background:var(--bg2);border:1px solid var(--bdr);border-radius:12px;padding:16px}
 .card-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
 .card-link{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);text-decoration:none;letter-spacing:.06em;transition:color .12s}
 .card-link:hover{color:var(--gold)}
+.icon-btn{background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.06em;padding:0;transition:color .12s}
+.icon-btn:hover{color:var(--gold)}
 .task-item{display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--bdr)}
 .task-item:last-child{border-bottom:none}
 .task-cb{width:14px;height:14px;border-radius:4px;border:1.5px solid var(--surf2);flex-shrink:0;margin-top:1px;cursor:pointer;transition:all .12s;display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--bg)}
@@ -47,7 +64,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .task-name:hover{color:var(--text)}
 .task-name.done{text-decoration:line-through;color:var(--muted)}
 .sec-label{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:8px 0 3px;border-top:1px solid var(--bdr);margin-top:2px}
-.task-list-scroll{max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.task-list-scroll{flex:1;min-height:0;max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
 .proj-select{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted2);background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:2px 6px;cursor:pointer;outline:none;max-width:140px;transition:border-color .12s}
 .proj-select:focus{border-color:var(--gold)}
 .task-add{display:flex;gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid var(--bdr)}
@@ -62,7 +79,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .ql-a .qi{width:16px;text-align:center;flex-shrink:0;font-size:13px}
 .ql-arr{margin-left:auto;color:var(--muted);font-size:10px;opacity:.5}
 .ql-sec{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:6px 9px 3px}
-.ql-sec+.ql-sec,.ql-a+.ql-sec{border-top:1px solid var(--bdr);margin-top:5px;padding-top:9px}
+.ql-a+.ql-sec{border-top:1px solid var(--bdr);margin-top:5px;padding-top:9px}
 
 /* ── SIDE PANEL ── */
 .side-weather{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--bdr);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0}
@@ -75,10 +92,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .slack-expand-btn{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);background:none;border:none;cursor:pointer;letter-spacing:.06em;transition:color .12s;padding:0}
 .slack-expand-btn:hover{color:var(--gold)}
 .slack-channels{display:flex;flex-direction:column;gap:2px}
-.slack-ch-row{display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;text-decoration:none;transition:background .12s}
-.slack-ch-row:hover{background:var(--surf)}
-.slack-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
-.slack-ch-name{font-size:11px;color:var(--muted2);flex:1}
 .slack-feed-wrap{margin-top:10px;display:none}
 .slack-feed-wrap.open{display:block}
 .slack-filter-row{display:flex;gap:6px;margin-bottom:8px}
@@ -87,7 +100,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .slack-filter::placeholder{color:var(--muted)}
 #slack-feed{max-height:260px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
 .slack-ch{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--blue)}
-.slack-who{font-size:10px;color:var(--muted)}
 .slack-time{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);margin-left:auto}
 .slack-msg{font-size:11px;color:var(--muted2);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;display:inline-block;margin-right:4px}
@@ -99,51 +111,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .side-panel-drive{flex:0 0 52%;border-bottom:1px solid var(--bdr)}
 .side-panel-scratch{flex:1}
 
-/* ── SCRATCHPAD ── */
-.scratch-wrap{flex:1;display:flex;flex-direction:column;padding:16px 20px;gap:10px;overflow:hidden}
-.scratch-toolbar{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.scratch-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
-.scratch-actions{display:flex;gap:6px;align-items:center}
-.scratch-saved{font-family:'DM Mono',monospace;font-size:8px;color:var(--green);transition:opacity .3s}
+/* ── SCRATCH / NOTES ── */
 .scratch-ta{flex:1;width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:10px;padding:14px;color:var(--text);font-size:12px;font-family:'Epilogue',sans-serif;line-height:1.65;resize:none;outline:none;transition:border-color .15s;min-height:0}
 .scratch-ta:focus{border-color:rgba(196,127,23,.35)}
 .scratch-ta::placeholder{color:var(--muted)}
-.scratch-footer{display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.char-count{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
 .btn-ghost{background:none;border:1px solid var(--bdr);color:var(--muted);border-radius:5px;padding:3px 8px;font-size:8.5px;font-family:'DM Mono',monospace;cursor:pointer;transition:all .12s;letter-spacing:.04em}
 .btn-ghost:hover{border-color:var(--bdr2);color:var(--muted2)}
 .btn-ghost.danger:hover{border-color:var(--red);color:var(--red)}
-
-
-
-/* ── GOOGLE DRIVE ── */
-.drive-wrap{flex:1;display:flex;flex-direction:column;overflow:hidden;padding:16px 20px;gap:12px}
-.drive-search-row{display:flex;gap:6px;flex-shrink:0}
-.drive-search{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;color:var(--text);font-size:11px;font-family:'Epilogue',sans-serif;outline:none;transition:border-color .12s}
-.drive-search:focus{border-color:var(--gold)}
-.drive-search::placeholder{color:var(--muted)}
-.drive-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent;display:flex;flex-direction:column;gap:2px}
-.drive-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:8px;text-decoration:none;transition:background .12s;cursor:pointer;border:1px solid transparent}
-.drive-item:hover{background:var(--surf);border-color:var(--bdr)}
-.drive-icon{font-size:16px;flex-shrink:0;width:20px;text-align:center}
-.drive-info{flex:1;min-width:0}
-.drive-name{font-size:11.5px;color:var(--muted2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .12s}
-.drive-item:hover .drive-name{color:var(--text)}
-.drive-meta{font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);margin-top:1px}
-.drive-arr{font-size:10px;color:var(--muted);opacity:.4;flex-shrink:0}
-.drive-section-label{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);padding:6px 4px 4px;border-bottom:1px solid var(--bdr);margin-bottom:2px}
-.drive-setup{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;text-align:center;padding:20px}
-.drive-setup-icon{font-size:36px;opacity:.3}
-.drive-setup-text{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6}
-.drive-key-row{display:flex;gap:6px;width:100%}
-.drive-key-inp{flex:1;background:var(--surf);border:1px solid var(--bdr);border-radius:7px;padding:6px 10px;color:var(--text);font-size:11px;font-family:'DM Mono',monospace;outline:none;transition:border-color .12s}
-.drive-key-inp:focus{border-color:var(--gold)}
-.drive-key-inp::placeholder{color:var(--muted)}
-.drive-breadcrumb{display:flex;align-items:center;gap:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);flex-shrink:0;flex-wrap:wrap}
-.drive-bc-item{cursor:pointer;transition:color .12s}
-.drive-bc-item:hover{color:var(--gold)}
-.drive-bc-sep{opacity:.3}
-.drive-loading{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:20px;text-align:center}
 
 .keep-card{border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;cursor:pointer;transition:border-color .13s,box-shadow .13s;position:relative}
 .keep-card:hover{border-color:var(--bdr2);box-shadow:0 2px 8px rgba(0,0,0,.25)}
@@ -154,7 +128,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .keep-card:hover .keep-del{opacity:.6}
 .keep-del:hover{opacity:1 !important;color:var(--red)}
 .kabul-row{display:flex;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-left:10px}
-.pat-row{margin-top:8px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
+.pat-row{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)}
 .pat-inp{background:transparent;border:none;border-bottom:1px solid var(--bdr);color:var(--muted2);font-size:8px;font-family:'DM Mono',monospace;width:150px;outline:none}
 .pat-inp::placeholder{color:var(--muted)}
 ::-webkit-scrollbar{width:3px;height:3px}
@@ -184,13 +158,10 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 <div class="content">
   <div class="col-main">
 
-    <div class="focus-hero">
-      <div class="focus-label">Today's focus</div>
-      <input class="focus-input" id="focus-input" placeholder="What's the one thing that matters today?" autocomplete="off">
-      <div class="focus-meta">
-        <span class="focus-hint" id="focus-saved"></span>
-        <button class="focus-clear" onclick="clearFocus()">Clear</button>
-      </div>
+    <!-- RHYTHM BAR -->
+    <div class="rhythm">
+      <div id="rh-items" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"></div>
+      <div class="rh-right" id="rh-right"></div>
     </div>
 
     <div class="under-focus">
@@ -200,17 +171,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
           <div style="display:flex;align-items:center;gap:7px">
             <select class="proj-select" id="asana-project-select" onchange="loadAsanaTasks()"><option value="">All my tasks</option></select>
             <a class="card-link" href="https://app.asana.com" target="_blank">Asana →</a>
+            <button class="icon-btn" onclick="togglePat()" title="Asana token">⚙</button>
           </div>
         </div>
+        <div class="pat-row" id="pat-row" style="display:none;margin-bottom:8px;text-align:right">PAT: <input class="pat-inp" id="asana-pat" type="password" placeholder="paste once to enable…" onchange="saveAsanaPat(this.value)"></div>
         <div class="task-list-scroll" id="asana-list"></div>
         <div class="task-add">
           <input class="inp" id="new-task-input" style="font-size:11px" placeholder="Add task…" onkeydown="if(event.key==='Enter')addTask()">
           <button class="btn-s" id="add-task-btn" onclick="addTask()" style="padding:5px 10px">+ Add</button>
-        </div>
-        <div id="add-task-status" style="font-size:9px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace;min-height:11px"></div>
-        <div style="margin-top:6px;text-align:right">
-          <button onclick="this.nextElementSibling.style.display=this.nextElementSibling.style.display==='none'?'block':'none'" style="background:none;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);letter-spacing:.06em">⚙ settings</button>
-          <div style="display:none;margin-top:5px" class="pat-row">PAT: <input class="pat-inp" id="asana-pat" type="password" placeholder="paste once to enable…" onchange="saveAsanaPat(this.value)"></div>
         </div>
       </div>
 
@@ -285,22 +253,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
     <!-- Stacked panels: Routine + Notes -->
     <div class="side-panels">
 
-      <!-- HABIT QUICK LINKS -->
-     <div class="side-panel side-panel-drive">
-  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
-    <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">✓ Daily Routine</span>
-    <span id="rt-count" style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)">0 of 5</span>
-  </div>
-  <div id="rt-list" style="flex:1;overflow-y:auto;padding:6px 12px"></div>
-  <div style="padding:10px 14px;border-top:1px solid var(--bdr);flex-shrink:0">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-      <span style="font-size:11.5px;color:var(--muted2)">Deep work</span>
-      <span id="rt-timer" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--gold)">0:00</span>
-    </div>
-    <input id="rt-what" class="inp" placeholder="Working on…" style="font-size:11px;padding:5px 9px;margin-bottom:6px">
-    <button id="rt-btn" class="btn-ghost" onclick="rtToggle()" style="width:100%;padding:5px">Start</button>
-  </div>
-</div>
+      <div class="side-panel side-panel-drive">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
+          <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">✓ Daily Routine</span>
+          <span id="rt-count" style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)">0 of 5</span>
+        </div>
+        <div id="rt-list" style="flex:1;overflow-y:auto;padding:6px 12px"></div>
+        <div style="padding:10px 14px;border-top:1px solid var(--bdr);flex-shrink:0">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+            <span style="font-size:11.5px;color:var(--muted2)">Deep work</span>
+            <span id="rt-timer" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--gold)">0:00</span>
+          </div>
+          <input id="rt-what" class="inp" placeholder="Working on…" style="font-size:11px;padding:5px 9px;margin-bottom:6px">
+          <button id="rt-btn" class="btn-ghost" onclick="rtToggle()" style="width:100%;padding:5px">Start</button>
+        </div>
+      </div>
 
       <!-- KEEP-STYLE NOTES -->
       <div class="side-panel side-panel-scratch">
@@ -308,9 +275,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
           <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">📌 Notes</span>
           <button class="btn-ghost" onclick="openNewNote()" style="font-size:9px">+ New</button>
         </div>
-        <!-- note list -->
         <div id="keep-list" style="flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent"></div>
-        <!-- inline editor (hidden by default) -->
         <div id="keep-editor" style="display:none;flex-direction:column;border-top:1px solid var(--bdr);padding:12px 16px;gap:8px;flex-shrink:0;background:var(--bg)">
           <input id="keep-title" class="inp" placeholder="Title (optional)" style="font-size:11px;font-weight:500">
           <textarea id="keep-body" class="scratch-ta" placeholder="Take a note…" style="height:80px;min-height:60px;resize:none;font-size:11px" spellcheck="false"></textarea>
@@ -347,6 +312,98 @@ function tick(){
 }
 setInterval(tick,1000);tick();
 
+// ══ RHYTHM BAR ══
+// Anchor times mirror the Claude scheduled-task pushes. If a push time changes
+// (e.g. DST shift in October), update it here too.
+const SOP={
+  morning:'https://app.asana.com/1/447722705768120/project/1212822399368597/task/1212822399368614',
+  midday:'https://app.asana.com/1/447722705768120/project/1212822399368597/task/1212822399368616',
+  shutdown:'https://app.asana.com/1/447722705768120/project/1212822399368597/task/1218194047055595',
+  review:'https://app.asana.com/1/447722705768120/project/1212822399368597/task/1212848197137283',
+};
+const THE_ONE='https://pervez369.github.io/the-one-workout/';
+const GYM_TARGET=4, GYM_FLOOR=3;
+const ANCHOR={morning:8*60, midday:15*60, shutdown:21*60, review:10*60}; // minutes, local time
+
+function cdFmt(mins){
+  if(mins<=0)return'now';
+  const h=Math.floor(mins/60),m=mins%60;
+  return 'in '+(h?h+'h '+(m?m+'m':''):m+'m').trim();
+}
+function rhAnchor(label,url,state,timeStr,cd){
+  const name=url?`<a href="${url}" target="_blank">${label}</a>`:label;
+  if(state==='done')return`<span class="rh-item done"><span class="rh-tick">✓</span><span>${name}</span></span>`;
+  if(state==='now')return`<span class="rh-item now"><span class="rh-dot"></span><span>${name}</span></span>`;
+  const t=[timeStr,cd].filter(Boolean).join(' · ');
+  return`<span class="rh-item"><span>${name}</span>${t?`<span class="rh-time">${t}</span>`:''}</span>`;
+}
+function renderRhythm(){
+  const n=new Date(),day=n.getDay(),mins=n.getHours()*60+n.getMinutes();
+  const parts=[];let quiet='';
+  if(day===0){ // Sunday
+    parts.push(rhAnchor('Sunday',null,'now'));
+    if(mins<ANCHOR.review)parts.push(rhAnchor('Weekly review',SOP.review,'next','10am',cdFmt(ANCHOR.review-mins)));
+    else parts.push(rhAnchor('Weekly review',SOP.review,'done'));
+    if(mins<ANCHOR.shutdown)parts.push(rhAnchor('Shutdown',SOP.shutdown,'next','9pm'));
+    else{parts.push(rhAnchor('Shutdown',SOP.shutdown,'done'));quiet='Work stays closed.';}
+  }else if(day===6){ // Saturday
+    parts.push(rhAnchor('Saturday',null,'now'));
+    if(mins<ANCHOR.shutdown)parts.push(rhAnchor('Shutdown',SOP.shutdown,'next','9pm'));
+    else{parts.push(rhAnchor('Shutdown',SOP.shutdown,'done'));quiet='Work stays closed.';}
+  }else{ // weekdays
+    if(mins<ANCHOR.morning){
+      parts.push(rhAnchor('Morning reset',SOP.morning,'next','8am',cdFmt(ANCHOR.morning-mins)));
+      parts.push(rhAnchor('Midday reset',SOP.midday,'next','3pm'));
+      parts.push(rhAnchor('Shutdown',SOP.shutdown,'next','9pm'));
+    }else if(mins<ANCHOR.midday){
+      parts.push(rhAnchor('Morning reset',SOP.morning,'done'));
+      parts.push(rhAnchor('Deep work',null,'now'));
+      parts.push(rhAnchor('Midday reset',SOP.midday,'next','3pm',cdFmt(ANCHOR.midday-mins)));
+      parts.push(rhAnchor('Shutdown',SOP.shutdown,'next','9pm'));
+    }else if(mins<ANCHOR.shutdown){
+      parts.push(rhAnchor('Morning reset',SOP.morning,'done'));
+      parts.push(rhAnchor('Midday reset',SOP.midday,'done'));
+      parts.push(rhAnchor('Deep work',null,'now'));
+      parts.push(rhAnchor('Shutdown',SOP.shutdown,'next','9pm',cdFmt(ANCHOR.shutdown-mins)));
+    }else{
+      parts.push(rhAnchor('Morning reset',SOP.morning,'done'));
+      parts.push(rhAnchor('Midday reset',SOP.midday,'done'));
+      parts.push(rhAnchor('Shutdown',SOP.shutdown,'done'));
+      quiet='Work stays closed.';
+    }
+  }
+  document.getElementById('rh-items').innerHTML=parts.join('<span class="rh-sep">·</span>');
+  // gym chip — weekly count, target 4, floor 3
+  const g=gymState(),nCount=g.days.length,logged=g.days.includes(localDateStr());
+  let cls='',label=`🏋 Gym · ${nCount} of ${GYM_TARGET}`;
+  if(nCount>=GYM_TARGET){cls=' full';label=`🏋 ${GYM_TARGET} of ${GYM_TARGET} ✓`;}
+  else if(nCount>=GYM_FLOOR){cls=' floor';label=`🏋 ${nCount} of ${GYM_TARGET} ✓`;}
+  document.getElementById('rh-right').innerHTML=
+    (quiet?`<span class="rh-quiet">${quiet}</span>`:'')+
+    `<a class="rh-gym${cls}" href="${THE_ONE}" target="_blank">${label} <span class="arr">→</span></a>`+
+    `<button class="rh-gym-tick${logged?' on':''}" onclick="gymLog()" title="${logged?'Un-log today':'Log a session today'}">${logged?'✓':'+'}</button>`;
+}
+function localDateStr(d){return (d||new Date()).toLocaleDateString('en-CA');}
+function mondayStr(){
+  const n=new Date();const shift=(n.getDay()+6)%7; // days since Monday
+  const mon=new Date(n);mon.setDate(n.getDate()-shift);
+  return localDateStr(mon);
+}
+function gymState(){
+  let o;try{o=JSON.parse(localStorage.getItem('z_gym')||'{}');}catch(e){o={};}
+  const wk=mondayStr();
+  if(o.week!==wk)o={week:wk,days:[]};
+  if(!Array.isArray(o.days))o.days=[];
+  return o;
+}
+function gymLog(){
+  const o=gymState(),t=localDateStr(),i=o.days.indexOf(t);
+  i<0?o.days.push(t):o.days.splice(i,1);
+  localStorage.setItem('z_gym',JSON.stringify(o));
+  renderRhythm();
+}
+renderRhythm();setInterval(renderRhythm,30000);
+
 // ══ WEATHER ══
 const WX_CODES={0:['☀️','Clear'],1:['🌤️','Mostly clear'],2:['⛅','Partly cloudy'],3:['☁️','Overcast'],45:['🌫️','Foggy'],48:['🌫️','Foggy'],51:['🌦️','Drizzle'],61:['🌧️','Rain'],63:['🌧️','Rain'],80:['🌦️','Showers'],95:['⛈️','Thunderstorm']};
 function applyWeather(t,c){const w=WX_CODES[c]||['🌡️',''];document.getElementById('wx-icon').textContent=w[0];document.getElementById('wx-temp').textContent=`${Math.round(t)}°`;document.getElementById('wx-desc').textContent=w[1]||'';}
@@ -356,14 +413,6 @@ async function loadWeather(){
   try{const r=await fetch('https://corsproxy.io/?'+encodeURIComponent(U));if(r.ok){const d=await r.json();applyWeather(d.current.temperature_2m,d.current.weathercode);}}catch(e){}
 }
 loadWeather();setInterval(loadWeather,15*60*1000);
-
-// ══ FOCUS ══
-const focusInput=document.getElementById('focus-input'),focusSaved=document.getElementById('focus-saved');
-focusInput.value=localStorage.getItem('z_focus')||'';
-focusInput.addEventListener('input',()=>{localStorage.setItem('z_focus',focusInput.value);focusSaved.textContent=focusInput.value?'✓ saved':'';});
-if(focusInput.value) focusSaved.textContent='✓ saved';
-function clearFocus(){focusInput.value='';localStorage.removeItem('z_focus');focusSaved.textContent='';focusInput.focus();}
-
 
 // ══ KEEP-STYLE NOTES ══
 const KEEP_COLORS=[
@@ -465,14 +514,13 @@ function deleteNote(id){
 
 renderKeep();
 
-
-
 // ══ HELPERS ══
 function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 // ══ ASANA ══
 const ASANA_WORKSPACE='447722705768120';
 let TASKS=[],CURRENT_SECTIONS=[];
+function togglePat(){const r=document.getElementById('pat-row');r.style.display=r.style.display==='none'?'block':'none';}
 function taskRow(t,done){return `<div class="task-item" id="t${t.gid}"><div class="task-cb${done.includes(t.gid)?' done':''}" onclick="toggleTask('${t.gid}')">${done.includes(t.gid)?'✓':''}</div><a href="${t.url}" target="_blank" class="task-name${done.includes(t.gid)?' done':''}">${t.name}</a></div>`;}
 function renderAsana(tasks,sections){
   if(tasks)TASKS=tasks;if(sections!==undefined)CURRENT_SECTIONS=sections||[];
@@ -532,20 +580,24 @@ async function loadAsanaTasks(){
 loadAsanaTasks();
 function saveAsanaPat(val){if(val)localStorage.setItem('z_asana_pat',btoa(val));document.getElementById('asana-pat').value='';document.getElementById('asana-pat').placeholder='✓ Token saved';asanaProjectsLoaded=false;loadAsanaTasks();}
 (function(){const p=localStorage.getItem('z_asana_pat');if(p)document.getElementById('asana-pat').placeholder='✓ Token saved';})();
+function flashAdd(ok){
+  const inp=document.getElementById('new-task-input'),btn=document.getElementById('add-task-btn');
+  inp.style.borderColor=ok?'var(--green)':'var(--red)';
+  btn.textContent=ok?'✓':'✗';
+  setTimeout(()=>{inp.style.borderColor='';btn.textContent='+ Add';btn.disabled=false;},2000);
+}
 async function addTask(){
-  const input=document.getElementById('new-task-input'),status=document.getElementById('add-task-status'),btn=document.getElementById('add-task-btn');
+  const input=document.getElementById('new-task-input'),btn=document.getElementById('add-task-btn');
   const name=input.value.trim();if(!name)return;
   const patEnc=localStorage.getItem('z_asana_pat');
-  if(!patEnc){status.textContent='✗ Paste your Asana PAT below first';status.style.color='var(--red)';return;}
+  if(!patEnc){document.getElementById('pat-row').style.display='block';document.getElementById('asana-pat').focus();flashAdd(false);return;}
   btn.textContent='…';btn.disabled=true;
   try{
     const r=await fetch('https://app.asana.com/api/1.0/tasks',{method:'POST',headers:{'Authorization':'Bearer '+atob(patEnc),'Content-Type':'application/json'},body:JSON.stringify({data:{name,workspace:ASANA_WORKSPACE,assignee:'me'}})});
     const d=await r.json();
-    if(d.data&&d.data.gid){status.textContent='✓ Added';status.style.color='var(--green)';input.value='';loadAsanaTasks();}
-    else{status.textContent='✗ '+(d.errors?.[0]?.message||'Failed');status.style.color='var(--red)';}
-  }catch(e){status.textContent='✗ Network error';status.style.color='var(--red)';}
-  btn.textContent='+ Add';btn.disabled=false;
-  setTimeout(()=>{status.textContent='';},3000);
+    if(d.data&&d.data.gid){input.value='';flashAdd(true);loadAsanaTasks();}
+    else{flashAdd(false);}
+  }catch(e){flashAdd(false);}
 }
 
 // ══ DAILY ROUTINE ══
@@ -713,7 +765,7 @@ const QUOTES=[
   {text:"He who has a why to live can bear almost any how.",author:"Friedrich Nietzsche"},
 ];
 let quoteIndex=0;
-function showQuote(idx){const q=QUOTES[idx%QUOTES.length];document.getElementById('quote-text').textContent='\u201c'+q.text+'\u201d';document.getElementById('quote-author').textContent='— '+q.author;}
+function showQuote(idx){const q=QUOTES[idx%QUOTES.length];document.getElementById('quote-text').textContent='“'+q.text+'”';document.getElementById('quote-author').textContent='— '+q.author;}
 function nextQuote(){quoteIndex=(quoteIndex+1)%QUOTES.length;showQuote(quoteIndex);}
 const doy=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
 quoteIndex=doy%QUOTES.length;showQuote(quoteIndex);
