@@ -192,6 +192,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
           <a class="ql-a" href="https://insights.cin7.com/Frontend#/" target="_blank"><span class="qi"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Cin7 Insights <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://pervez369.github.io/adwords-dashboard/" target="_blank"><span class="qi">📊</span> Adwords Dashboard <span class="ql-arr">→</span></a>
           <div class="ql-sec">Build</div>
+          <a class="ql-a" href="https://github.com/Pervez369?tab=repositories" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> GitHub — all repos <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://github.com/Pervez369/zest-invoice-automation" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Invoice Automation <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://github.com/Pervez369/zest-ai-assist" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> AI Assist <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://github.com/Pervez369/zest-stock-sync" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Stock Sync <span class="ql-arr">→</span></a>
@@ -686,7 +687,7 @@ function slackRows(){
 }
 function msgRow(m){
   const txt=(m.text||m.html||m.msg||'').replace(/<[^>]+>/g,'');
-  const url=m.url||CH_URLS[m.ch]||'https://slack.com';
+  const url=CH_URLS[m.ch]||'https://slack.com';
   return `<a href="${url}" target="_blank" style="text-decoration:none;color:inherit;display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--bdr)">
     <div style="width:7px;height:7px;border-radius:2px;background:${m.color};flex-shrink:0;margin-top:4px"></div>
     <div style="flex:1;min-width:0"><div style="display:flex;align-items:baseline;gap:5px;margin-bottom:2px"><span class="slack-ch">#${m.ch}</span><span class="slack-time">${m.time}</span></div>
