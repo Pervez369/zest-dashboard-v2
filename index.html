@@ -6,7 +6,7 @@
 <title>Focus</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23111'/><line x1='14' y1='22' x2='50' y2='22' stroke='%23fff' stroke-width='3' stroke-linecap='round'/><line x1='14' y1='32' x2='38' y2='32' stroke='%23fff' stroke-width='3' stroke-linecap='round' opacity='.6'/><line x1='14' y1='42' x2='28' y2='42' stroke='%23fff' stroke-width='3' stroke-linecap='round' opacity='.3'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Epilogue:wght@300;400;500;600&display=optional" rel="stylesheet">
 <style>
 :root{--bg:#1c1e22;--bg2:#22252b;--bg3:#272b32;--surf:#2d3139;--surf2:#333842;--bdr:rgba(255,255,255,0.07);--bdr2:rgba(255,255,255,0.13);--text:#f0eeea;--muted:#9aa2b2;--muted2:#c8d0de;--gold:#c47f17;--gold-l:#d4920a;--gold-s:rgba(196,127,23,0.12);--green:#3a9e6a;--red:#c45050;--blue:#4a80d4;--slate:#8090a8}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -156,6 +156,18 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .pat-inp::placeholder{color:var(--muted)}
 ::-webkit-scrollbar{width:3px;height:3px}
 ::-webkit-scrollbar-thumb{background:var(--surf2);border-radius:2px}
+
+/* ── LAYOUT STABILITY: reserve space so panels don't shift as data arrives ── */
+.rhythm{min-height:46px}
+#rh-items{min-height:18px}
+.under-focus>.card{min-height:420px}
+.task-list-scroll{min-height:280px}
+.npane{min-height:300px}
+#cal-events{min-height:150px}
+.slack-channels{min-height:126px}
+.side-weather{min-height:37px}
+#quote-text{min-height:66px}
+.ai-btn img,.qi img{width:13px;height:13px}
 </style>
 </head>
 <body>
