@@ -81,6 +81,28 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .ql-sec{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:6px 9px 3px}
 .ql-a+.ql-sec{border-top:1px solid var(--bdr);margin-top:5px;padding-top:9px}
 
+/* ── NOTION PANEL ── */
+.ntabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
+.ntab{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bdr);border-radius:5px;padding:3px 9px;cursor:pointer;background:none;transition:all .12s}
+.ntab:hover{color:var(--muted2);border-color:var(--bdr2)}
+.ntab.on{color:var(--gold);border-color:rgba(196,127,23,.45);background:var(--gold-s)}
+.npane{max-height:340px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--surf2) transparent}
+.ntree{font-size:11.5px}
+.nrow{display:flex;align-items:center;gap:7px;padding:5px 7px;border-radius:7px;color:var(--muted2);cursor:pointer;border:1px solid transparent;transition:all .12s;user-select:none}
+.nrow:hover{background:var(--surf);border-color:var(--bdr);color:var(--text)}
+.nrow .car{width:10px;font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);transition:transform .12s;flex-shrink:0;text-align:center}
+.nrow.open .car{transform:rotate(90deg)}
+.nrow .car.leaf{opacity:0}
+.nrow .nic{width:16px;text-align:center;flex-shrink:0;font-size:12px}
+.nrow .nt{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nrow .nsec{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate)}
+.nrow .nmeta{font-family:'DM Mono',monospace;font-size:8px;color:var(--muted);flex-shrink:0}
+.nrow .nopen{color:var(--muted);font-size:10px;opacity:.5;text-decoration:none;flex-shrink:0;padding:0 2px}
+.nrow .nopen:hover{opacity:1;color:var(--gold)}
+.nkids{padding-left:13px;border-left:1px solid var(--bdr);margin-left:12px}
+.nkids[hidden]{display:none}
+.nmsg{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);padding:6px 8px}
+
 /* ── SIDE PANEL ── */
 .side-weather{display:flex;align-items:center;gap:10px;padding:10px 20px;border-bottom:1px solid var(--bdr);font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0}
 .wx-temp{font-size:13px;font-weight:500;color:var(--muted2)}
@@ -108,7 +130,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 /* ── STACKED PANELS ── */
 .side-panels{flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .side-panel{display:flex;flex-direction:column;overflow:hidden;min-height:0}
-.side-panel-drive{flex:0 0 52%;border-bottom:1px solid var(--bdr)}
+.side-panel-links{flex:0 0 auto;border-bottom:1px solid var(--bdr);padding:12px 12px 10px}
+.side-panel-links .sp-label{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:0 8px 6px}
 .side-panel-scratch{flex:1}
 
 /* ── SCRATCH / NOTES ── */
@@ -182,23 +205,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
         </div>
       </div>
 
-      <div class="card">
-        <div class="card-label">⚡ Shortcuts</div>
-        <div class="ql">
-          <div class="ql-sec">Ops</div>
-          <a class="ql-a" href="https://login.xero.com/identity/connect/authorize?client_id=xero_reporting_hybrid-web&redirect_uri=https%3A%2F%2Freporting.xero.com%2Fsignin-oidc&response_mode=form_post&response_type=code%20id_token&scope=xero_all-apis%20openid%20email%20profile&state=OpenIdConnect.AuthenticationProperties%3D6P8R5zF4DguDvJSAT3aE5aBRtUlT4RKnhwsVTYpELwo91Y-qBrHFsDm-1AQ3eFBpLy6HoRklrMe-I9vsh0AJOVwqSewriFNINXGloCEIJNa-5EFbwqTOQspHBrSKlOivZmoHZhDOCoafFGFnB_LJYP0sAOncC3Rtszco8h3k9KFqs-q_rfFvaK-RHJmETetqMQFoAmoL699o-SiQy7SYvuwQrMcYF-cX1shu2VjPYRYXAohm1DQOg-mRVf3cOZ7h-dvVZP68F9S4s47tI6goSA&nonce=639089119749575882.MmMwNGU5MmUtYWUyZS00MGVlLTllZTQtOTEzYWUxYWM4ZjA5MWM5NzU3NDktZmExNy00OGM4LTk0YzUtNmYwYTFlNjUwZDJm&x-client-SKU=ID_NET451&x-client-ver=1.3.16.0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Xero P&amp;L <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://store-pvv5u2d.mybigcommerce.com/manage/analytics/overview" target="_blank"><span class="qi"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> BC Analytics <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Google Ads <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://insights.cin7.com/Frontend#/" target="_blank"><span class="qi"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Cin7 Insights <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://pervez369.github.io/adwords-dashboard/" target="_blank"><span class="qi">📊</span> Adwords Dashboard <span class="ql-arr">→</span></a>
-          <div class="ql-sec">Build</div>
-          <a class="ql-a" href="https://github.com/Pervez369?tab=repositories" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> GitHub — all repos <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://github.com/Pervez369/zest-invoice-automation" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Invoice Automation <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://github.com/Pervez369/zest-ai-assist" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> AI Assist <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://github.com/Pervez369/zest-stock-sync" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Stock Sync <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://dashboard.render.com" target="_blank"><span class="qi"><img src="https://icon.horse/icon/render.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Render <span class="ql-arr">→</span></a>
-          <a class="ql-a" href="https://us2.make.com/653781/scenarios" target="_blank"><span class="qi"><img src="https://icon.horse/icon/make.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Make Scenarios <span class="ql-arr">→</span></a>
+      <!-- NOTION -->
+      <div class="card" style="display:flex;flex-direction:column">
+        <div class="card-label">
+          <span>◼ Notion</span>
+          <div style="display:flex;align-items:center;gap:7px">
+            <button class="icon-btn" onclick="notionRefresh()" title="Refresh from Notion" id="notion-refresh">↻</button>
+            <a class="card-link" href="https://www.notion.so" target="_blank">Open →</a>
+          </div>
         </div>
+        <div class="ntabs">
+          <button class="ntab on" data-ntab="browse" onclick="notionTab('browse')">Browse</button>
+          <button class="ntab" data-ntab="libs" onclick="notionTab('libs')">Libraries</button>
+          <button class="ntab" data-ntab="notes" onclick="notionTab('notes')">Notes</button>
+        </div>
+        <div class="npane ntree" id="npane-browse"><div class="nmsg">Loading…</div></div>
+        <div class="npane ntree" id="npane-libs" hidden><div class="nmsg">Loading…</div></div>
+        <div class="npane ntree" id="npane-notes" hidden><div class="nmsg">Loading…</div></div>
       </div>
     </div>
 
@@ -251,22 +274,30 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
       </div>
     </div>
 
-    <!-- Stacked panels: Routine + Notes -->
+    <!-- Stacked panels: Dashboards + Build + Notes -->
     <div class="side-panels">
 
-      <div class="side-panel side-panel-drive">
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 8px;flex-shrink:0;border-bottom:1px solid var(--bdr)">
-          <span style="font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">✓ Daily Routine</span>
-          <span id="rt-count" style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muted)">0 of 5</span>
+      <div class="side-panel side-panel-links">
+        <div class="sp-label">📊 Dashboards &amp; Reports</div>
+        <div class="ql">
+          <a class="ql-a" href="https://claude.ai/artifact/UjgCzA674pWfLSGSLHMAGR" target="_blank"><span class="qi">◈</span> Zest Real Revenue <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://pervez369.github.io/adwords-dashboard/" target="_blank"><span class="qi">📈</span> Adwords Dashboard <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://login.xero.com/identity/connect/authorize?client_id=xero_reporting_hybrid-web&redirect_uri=https%3A%2F%2Freporting.xero.com%2Fsignin-oidc&response_mode=form_post&response_type=code%20id_token&scope=xero_all-apis%20openid%20email%20profile&state=OpenIdConnect.AuthenticationProperties%3D6P8R5zF4DguDvJSAT3aE5aBRtUlT4RKnhwsVTYpELwo91Y-qBrHFsDm-1AQ3eFBpLy6HoRklrMe-I9vsh0AJOVwqSewriFNINXGloCEIJNa-5EFbwqTOQspHBrSKlOivZmoHZhDOCoafFGFnB_LJYP0sAOncC3Rtszco8h3k9KFqs-q_rfFvaK-RHJmETetqMQFoAmoL699o-SiQy7SYvuwQrMcYF-cX1shu2VjPYRYXAohm1DQOg-mRVf3cOZ7h-dvVZP68F9S4s47tI6goSA&nonce=639089119749575882.MmMwNGU5MmUtYWUyZS00MGVlLTllZTQtOTEzYWUxYWM4ZjA5MWM5NzU3NDktZmExNy00OGM4LTk0YzUtNmYwYTFlNjUwZDJm&x-client-SKU=ID_NET451&x-client-ver=1.3.16.0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/xero.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Xero P&amp;L <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://insights.cin7.com/Frontend#/" target="_blank"><span class="qi"><img src="https://icon.horse/icon/cin7.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Cin7 Insights <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://store-pvv5u2d.mybigcommerce.com/manage/analytics/overview" target="_blank"><span class="qi"><img src="https://icon.horse/icon/bigcommerce.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> BC Analytics <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://ads.google.com/aw/campaigns?ocid=128398086&euid=310280297&__u=8832557153&uscid=128398086&__c=5758205014&authuser=0" target="_blank"><span class="qi"><img src="https://icon.horse/icon/ads.google.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Google Ads <span class="ql-arr">→</span></a>
         </div>
-        <div id="rt-list" style="flex:1;overflow-y:auto;padding:6px 12px"></div>
-        <div style="padding:10px 14px;border-top:1px solid var(--bdr);flex-shrink:0">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-            <span style="font-size:11.5px;color:var(--muted2)">Deep work</span>
-            <span id="rt-timer" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--gold)">0:00</span>
-          </div>
-          <input id="rt-what" class="inp" placeholder="Working on…" style="font-size:11px;padding:5px 9px;margin-bottom:6px">
-          <button id="rt-btn" class="btn-ghost" onclick="rtToggle()" style="width:100%;padding:5px">Start</button>
+      </div>
+
+      <div class="side-panel side-panel-links">
+        <div class="sp-label">🛠 Build</div>
+        <div class="ql">
+          <a class="ql-a" href="https://github.com/Pervez369?tab=repositories" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> GitHub — all repos <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://github.com/Pervez369/zest-invoice-automation" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Invoice Automation <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://github.com/Pervez369/zest-ai-assist" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> AI Assist <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://github.com/Pervez369/zest-stock-sync" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Stock Sync <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://dashboard.render.com" target="_blank"><span class="qi"><img src="https://icon.horse/icon/render.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Render <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://us2.make.com/653781/scenarios" target="_blank"><span class="qi"><img src="https://icon.horse/icon/make.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Make Scenarios <span class="ql-arr">→</span></a>
         </div>
       </div>
 
@@ -601,35 +632,111 @@ async function addTask(){
   }catch(e){flashAdd(false);}
 }
 
-// ══ DAILY ROUTINE ══
-const RT_ITEMS=["Check Asana for today's tasks","Triage Front inbox","Scan Slack channels","Review yesterday's numbers","End of day: inbox zero"];
-const rtKey=()=>'z_rt_'+new Date().toLocaleDateString('en-CA');
-let rtState=JSON.parse(localStorage.getItem(rtKey())||'{"done":[],"sec":0,"what":""}');
-function rtSave(){localStorage.setItem(rtKey(),JSON.stringify(rtState));}
-function rtRender(){
-  document.getElementById('rt-list').innerHTML=RT_ITEMS.map((t,i)=>{
-    const d=rtState.done.includes(i);
-    return `<div onclick="rtTick(${i})" style="display:flex;align-items:center;gap:9px;padding:7px 4px;cursor:pointer;border-bottom:1px solid var(--bdr)">
-      <div class="task-cb${d?' done':''}" style="pointer-events:none">${d?'✓':''}</div>
-      <span style="font-size:11.5px;line-height:1.35;color:${d?'var(--muted)':'var(--muted2)'};text-decoration:${d?'line-through':'none'}">${t}</span></div>`;
-  }).join('');
-  document.getElementById('rt-count').textContent=rtState.done.length+' of '+RT_ITEMS.length;
+// ══ NOTION (live, via the Render proxy) ══
+// Browse: Recents + every top-level page shared with the connection, expandable down the tree.
+// Libraries: the databases inside the Operations Hub. Notes: what's inside Private Hub.
+const NOTION_PROXY='https://zest-slack-proxy.onrender.com';
+const NOTION_OPS_HUB='010e7835-4fca-82ad-bce0-010417020dc0';   // Zest Lighting Operations Hub
+const NOTION_PRIVATE_HUB='3f7e7835-4fca-8154-89e0-eb549e592462'; // Private Hub
+const NOTION_TODAYS_NOTES='https://www.notion.so/3f4e78354fca810aacdce831bd4d4954';
+const nKids={}; // id -> items (cached per session)
+
+function nAgo(iso){
+  if(!iso)return'';
+  const s=(Date.now()-new Date(iso))/1000;
+  if(s<3600)return Math.max(1,Math.floor(s/60))+'m';
+  if(s<86400)return Math.floor(s/3600)+'h';
+  if(s<86400*7)return Math.floor(s/86400)+'d';
+  const d=new Date(iso);return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
 }
-function rtTick(i){const k=rtState.done.indexOf(i);k<0?rtState.done.push(i):rtState.done.splice(k,1);rtSave();rtRender();}
-let rtInt=null;
-function rtFmt(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');}
-function rtToggle(){
-  const b=document.getElementById('rt-btn');
-  if(rtInt){clearInterval(rtInt);rtInt=null;b.textContent='Resume';rtSave();return;}
-  b.textContent='Pause';
-  rtInt=setInterval(()=>{rtState.sec++;document.getElementById('rt-timer').textContent=rtFmt(rtState.sec);if(rtState.sec%15===0)rtSave();},1000);
+async function nGet(path){
+  const r=await fetch(NOTION_PROXY+path);const d=await r.json();
+  if(!d.ok)throw new Error(d.error||'Notion error');return d;
+}
+async function nChildren(id){
+  if(nKids[id])return nKids[id];
+  const d=await nGet('/notion/children?id='+encodeURIComponent(id));
+  nKids[id]=d.items||[];return nKids[id];
+}
+// A row that can expand (page/database) — children load on first click.
+function nNode(item,depth){
+  const wrap=document.createElement('div');
+  const row=document.createElement('div');row.className='nrow';
+  row.innerHTML=`<span class="car">▶</span><span class="nic">${escHtml(item.icon||'📄')}</span><span class="nt">${escHtml(item.title||'Untitled')}</span>`+
+    (item.edited?`<span class="nmeta">${nAgo(item.edited)}</span>`:'')+
+    `<a class="nopen" href="${escHtml(item.url)}" target="_blank" title="Open in Notion" onclick="event.stopPropagation()">↗</a>`;
+  const kids=document.createElement('div');kids.className='nkids';kids.hidden=true;
+  row.onclick=async()=>{
+    const open=!kids.hidden;
+    if(open){kids.hidden=true;row.classList.remove('open');return;}
+    kids.hidden=false;row.classList.add('open');
+    if(!kids.childNodes.length){
+      kids.innerHTML='<div class="nmsg">Loading…</div>';
+      try{
+        const items=await nChildren(item.id);
+        kids.innerHTML='';
+        if(!items.length){kids.innerHTML='<div class="nmsg">No sub-pages</div>';row.querySelector('.car').classList.add('leaf');return;}
+        items.forEach(k=>kids.appendChild(nNode(k,depth+1)));
+      }catch(e){kids.innerHTML=`<div class="nmsg" style="color:var(--red)">${escHtml(e.message)}</div>`;}
+    }
+  };
+  wrap.appendChild(row);wrap.appendChild(kids);return wrap;
+}
+// A section header (Recents / Pages) that expands a flat or nested list.
+function nSection(label,loader,startOpen){
+  const wrap=document.createElement('div');
+  const row=document.createElement('div');row.className='nrow'+(startOpen?' open':'');
+  row.innerHTML=`<span class="car">▶</span><span class="nsec">${label}</span>`;
+  const kids=document.createElement('div');kids.className='nkids';kids.hidden=!startOpen;
+  let loaded=false;
+  const load=async()=>{
+    if(loaded)return;loaded=true;kids.innerHTML='<div class="nmsg">Loading…</div>';
+    try{const items=await loader();kids.innerHTML='';
+      if(!items.length){kids.innerHTML='<div class="nmsg">Nothing here yet</div>';return;}
+      items.forEach(k=>kids.appendChild(nNode(k,1)));
+    }catch(e){kids.innerHTML=`<div class="nmsg" style="color:var(--red)">${escHtml(e.message)}</div>`;}
+  };
+  row.onclick=()=>{const open=!kids.hidden;kids.hidden=open;row.classList.toggle('open',!open);if(!open)load();};
+  if(startOpen)load();
+  wrap.appendChild(row);wrap.appendChild(kids);return wrap;
+}
+async function notionLoadBrowse(){
+  const el=document.getElementById('npane-browse');el.innerHTML='';
+  el.appendChild(nSection('Recents',async()=>(await nGet('/notion/recent')).items,false));
+  el.appendChild(nSection('Pages',async()=>(await nGet('/notion/tree')).roots,true));
+}
+async function notionLoadLibs(){
+  const el=document.getElementById('npane-libs');el.innerHTML='<div class="nmsg">Loading…</div>';
+  try{
+    const items=(await nChildren(NOTION_OPS_HUB)).filter(i=>i.type==='database'||/task bank|template/i.test(i.title));
+    el.innerHTML='';
+    if(!items.length){el.innerHTML='<div class="nmsg">No libraries found under the Operations Hub</div>';return;}
+    items.forEach(i=>el.appendChild(nNode(i,1)));
+  }catch(e){el.innerHTML=`<div class="nmsg" style="color:var(--red)">${escHtml(e.message)}</div>`;}
+}
+async function notionLoadNotes(){
+  const el=document.getElementById('npane-notes');el.innerHTML='';
+  const top=document.createElement('a');top.className='nrow';top.href=NOTION_TODAYS_NOTES;top.target='_blank';top.style.textDecoration='none';
+  top.innerHTML=`<span class="car leaf">▶</span><span class="nic">📝</span><span class="nt">Today's Notes</span><span class="nmeta">open</span>`;
+  el.appendChild(top);
+  el.appendChild(nSection('Private Hub',async()=>nChildren(NOTION_PRIVATE_HUB),true));
+}
+function notionTab(name){
+  document.querySelectorAll('.ntab').forEach(b=>b.classList.toggle('on',b.dataset.ntab===name));
+  ['browse','libs','notes'].forEach(k=>{document.getElementById('npane-'+k).hidden=(k!==name);});
+  try{localStorage.setItem('z_ntab',name);}catch(e){}
+}
+async function notionRefresh(){
+  const b=document.getElementById('notion-refresh');b.textContent='⏳';
+  try{await fetch(NOTION_PROXY+'/notion/refresh');}catch(e){}
+  Object.keys(nKids).forEach(k=>delete nKids[k]);
+  await Promise.all([notionLoadBrowse(),notionLoadLibs(),notionLoadNotes()]);
+  b.textContent='↻';
 }
 (function(){
-  Object.keys(localStorage).forEach(k=>{if(k.startsWith('z_rt_')&&k!==rtKey())localStorage.removeItem(k);});
-  const w=document.getElementById('rt-what');w.value=rtState.what||'';
-  w.addEventListener('input',()=>{rtState.what=w.value;rtSave();});
-  document.getElementById('rt-timer').textContent=rtFmt(rtState.sec||0);
-  rtRender();
+  let t='browse';try{t=localStorage.getItem('z_ntab')||'browse';}catch(e){}
+  notionTab(t);
+  notionLoadBrowse();notionLoadLibs();notionLoadNotes();
 })();
 
 // ══ SLACK ══
