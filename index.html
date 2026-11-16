@@ -81,7 +81,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
 .ql-sec{font-family:'DM Mono',monospace;font-size:7.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--slate);padding:6px 9px 3px}
 .ql-a+.ql-sec{border-top:1px solid var(--bdr);margin-top:5px;padding-top:9px}
 
-/* ── NOTION PANEL ── */
+/* ── AUTOMATIONS PANEL (tree styles) ── */
+.nrow.idle{opacity:.5}
+.nrow .nmeta.warn{color:var(--gold)}
+.alook{display:flex;gap:8px;padding:8px 7px;border-bottom:1px solid var(--bdr);font-size:11.5px;color:var(--muted2);line-height:1.45;text-decoration:none}
+.alook:last-child{border-bottom:none}
+.alook:hover{color:var(--text)}
+.alook .adot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+.alook b{color:var(--text);font-weight:600}
 .ntabs{display:flex;gap:4px;margin-bottom:10px;flex-wrap:wrap}
 .ntab{font-family:'DM Mono',monospace;font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--bdr);border-radius:5px;padding:3px 9px;cursor:pointer;background:none;transition:all .12s}
 .ntab:hover{color:var(--muted2);border-color:var(--bdr2)}
@@ -217,23 +224,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
         </div>
       </div>
 
-      <!-- NOTION -->
+      <!-- AUTOMATIONS (replaces the Notion panel) -->
       <div class="card" style="display:flex;flex-direction:column">
         <div class="card-label">
-          <span>◼ Notion</span>
+          <span>⚙ Automations</span>
           <div style="display:flex;align-items:center;gap:7px">
-            <button class="icon-btn" onclick="notionRefresh()" title="Refresh from Notion" id="notion-refresh">↻</button>
-            <a class="card-link" href="https://www.notion.so" target="_blank">Open →</a>
+            <span id="auto-count" style="font-family:'DM Mono',monospace;font-size:8.5px;color:var(--muted);letter-spacing:.06em"></span>
+            <a class="card-link" id="auto-map-link" href="#" target="_blank">Full map →</a>
           </div>
         </div>
         <div class="ntabs">
-          <button class="ntab on" data-ntab="browse" onclick="notionTab('browse')">Browse</button>
-          <button class="ntab" data-ntab="libs" onclick="notionTab('libs')">Libraries</button>
-          <button class="ntab" data-ntab="notes" onclick="notionTab('notes')">Notes</button>
+          <button class="ntab on" data-atab="depts" onclick="autoTab('depts')">Departments</button>
+          <button class="ntab" data-atab="look" onclick="autoTab('look')">Needs a look</button>
         </div>
-        <div class="npane ntree" id="npane-browse"><div class="nmsg">Loading…</div></div>
-        <div class="npane ntree" id="npane-libs" hidden><div class="nmsg">Loading…</div></div>
-        <div class="npane ntree" id="npane-notes" hidden><div class="nmsg">Loading…</div></div>
+        <div class="npane ntree" id="apane-depts"></div>
+        <div class="npane" id="apane-look" hidden></div>
       </div>
     </div>
 
@@ -310,6 +315,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
           <a class="ql-a" href="https://github.com/Pervez369/zest-stock-sync" target="_blank"><span class="qi"><img src="https://icon.horse/icon/github.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Stock Sync <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://dashboard.render.com" target="_blank"><span class="qi"><img src="https://icon.horse/icon/render.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Render <span class="ql-arr">→</span></a>
           <a class="ql-a" href="https://us2.make.com/653781/scenarios" target="_blank"><span class="qi"><img src="https://icon.horse/icon/make.com" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Make Scenarios <span class="ql-arr">→</span></a>
+          <a class="ql-a" href="https://www.notion.so" target="_blank"><span class="qi"><img src="https://icon.horse/icon/notion.so" width="13" height="13" style="border-radius:2px;vertical-align:middle"></span> Notion <span class="ql-arr">→</span></a>
         </div>
       </div>
 
@@ -644,111 +650,91 @@ async function addTask(){
   }catch(e){flashAdd(false);}
 }
 
-// ══ NOTION (live, via the Render proxy) ══
-// Browse: Recents + every top-level page shared with the connection, expandable down the tree.
-// Libraries: the databases inside the Operations Hub. Notes: what's inside Private Hub.
-const NOTION_PROXY='https://zest-slack-proxy.onrender.com';
-const NOTION_OPS_HUB='010e7835-4fca-82ad-bce0-010417020dc0';   // Zest Lighting Operations Hub
-const NOTION_PRIVATE_HUB='3f7e7835-4fca-8154-89e0-eb549e592462'; // Private Hub
-const NOTION_TODAYS_NOTES='https://www.notion.so/3f4e78354fca810aacdce831bd4d4954';
-const nKids={}; // id -> items (cached per session)
-
-function nAgo(iso){
-  if(!iso)return'';
-  const s=(Date.now()-new Date(iso))/1000;
-  if(s<3600)return Math.max(1,Math.floor(s/60))+'m';
-  if(s<86400)return Math.floor(s/3600)+'h';
-  if(s<86400*7)return Math.floor(s/86400)+'d';
-  const d=new Date(iso);return d.getDate()+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];
+// ══ AUTOMATIONS (static snapshot of the Zest Automation Map, 16 Nov 2026) ══
+// Departments → groups → Make scenarios. Click a scenario to open it in Make.
+// To update: edit AUTO below. Row = [name, when it runs, Make scenario id, how many scenarios (default 1), flag ('warn' = dry run, 'idle' = on but not in use)].
+const AUTO_MAP_URL='https://claude.ai/artifact/BgHyx2EiNf5cCA5d4kxYdW';
+const MAKE_EDIT='https://us2.make.com/653781/scenarios/';
+const AUTO=[
+ {name:'Quotes & Sales',icon:'💬',groups:[
+  ['Quote requests',[['Creating Quotes','instant',4411623],['Quote Builder Intake','instant',5748273],['Trade Application Intake','instant',5824945]]],
+  ['After the quote is sent',[['Customer PO → Pro-Forma','instant',6731574],['Address Capture → Front Card','instant',6744838],['Address Capture → Apply to Cin7','button',6745140]]],
+  ['CRM and phones',[['BigCommerce → HubSpot → SMS','instant',1674839],['Cin7 → HubSpot Contact','daily',2790841],['Convert Numbers (2)','weekly',1426066,2],['Auto SMS Missed Call (2)','instant',1811862,2]]],
+  ['On, but not in use',[['HubSpot stage movers (4)','timer',1434022,4,'idle'],['Webchat','instant',1743503,1,'idle']]]]},
+ {name:'Orders & Dispatch',icon:'📦',groups:[
+  ['Order in',[['Order Confirmation → Cin7 SO','instant',5320916],['Order Check + Stock Check (2)','instant',5450628,2],['Order Exception Queue','timer',5657654]]],
+  ['Backorders and stock links',[['Create Backorder','button',6940137],['Backorder Board','8:45',5668707],['Backorder Deposits Check','Fri 9:30',6948986],['Stock-link check','hourly',6553922],['Create Cin7 product from BC','button',6938832]]],
+  ['Dispatch and delivery',[['Oriel Shipping → Dispatch','instant',5686622],['Supplier Tracking → Dispatch','instant',5686770],['Lexi Shipping → Dispatch','instant',6469416],['Warehouse Dispatch → Front','30 min',5934017],['Cin7 Dispatch → BC Complete','15 min',5356515],['Out for Delivery SMS','instant',1751697],['Review Request SMS','daily',2738918]]]]},
+ {name:'Payments & Accounting',icon:'💳',groups:[
+  ['Payment arrives',[['CommBank Payment → Cin7 Paid','instant',5951905],['Payment Received → Customer Email','instant',5686972],['Bank Payment → Customer Email','instant',5952385],['Payment Received → Supplier PO','instant',5858212]]],
+  ['Remittances',[['Remittance Intake','instant',6856907],['Remittance → Split Payments','instant',6856999]]],
+  ['Morning sweeps',[['Auto-Fix (Orders)','6:40',6025030],['Auto-Fix (Quote → paid)','6:45',6025033],['Auto-Fix (Quote → convert)','6:48',6025038],['Sweep (Remittance → split)','6:50',6857073],['Bank Feed Morning Sweep','7:00',5958888],['Invoice Date Sweep','dry run',6716018,1,'warn']]]]},
+ {name:'Purchasing & Suppliers',icon:'🧾',groups:[
+  ['Raising POs',[['PO Delivery Button Handler','button',5450369],['Address applied → Rebuild PO PDF','instant',6835184],['PO Sent → Comment on Order','instant',5570596],['Oriel B2B Order → Cin7 PO','instant',5638876]]],
+  ['Supplier paperwork',[['Supplier Invoice → Cin7 PO','instant',5593740]]]]},
+ {name:'Returns & Warranty',icon:'↩️',groups:[
+  ['Forms in',[['Returns Form Intake','15 min',6895583],['Warranty Claim Intake','instant',6925253]]],
+  ['Return buttons',[['Refund Calculator','button',6910750],['Create Credit Note','button',6910911],['Refund Done','button',6911335],['Replacement','button',6925029],['Ask for More Info','button',6957529],['Mark Return Closed','button',6923182]]],
+  ['Reporting',[['Open Returns Weekly Digest','Mon 9:10',6908514]]]]},
+ {name:'Stock & Catalog',icon:'🏷️',groups:[
+  ['Stock and cost',[['Own-Stock Sync','6:30',6909026],['Own-Brand Cost Sync','Mon 6:45',6924763],['Stock Sync: Front → BC','instant',5479722]]],
+  ['Catalog',[['Category Sort Engine','Wed + Sat',5786421],['Viore Thumbnails → Sheet','by hand',6066194]]]]},
+ {name:'Team',icon:'👥',groups:[
+  ['VA activity',[['Front Activity Counter','30 min',5964908],['VA Activity Monitor','30 min',5951422],['Activity Digests (2)','6:00pm',5975362,2],['VA Monitor: test copy','by hand',7003370,1,'idle']]],
+  ['Owner summary',[['Zest Daily Brief','5:30pm',6005618]]]]},
+ {name:'Marketing & Reporting',icon:'📈',groups:[
+  ['Real Revenue',[['BigCommerce orders','2:00',6567463],['Google Ads + Meta spend','2:15',6567807],['Pinterest spend','2:20',6567818],['Claims refresh','2:30',6745964],['GA4 revenue by channel','3:05',6568282],['PMax monthly check','monthly',6568068],['Microsoft Ads spend','instant',6567714],['Order touch tracker','instant',6579510],['On-demand helpers (4)','by hand',6568827,4]]],
+  ['Blog',[['Blog Images','Mon 12:30',6479503],['Blog Draft Generator','Mon 1:30pm',6371548],['Blog Publisher','M/W/F 9:00',6371656]]]]}
+];
+const AUTO_LOOK=[
+ ['Invoice Date Sweep is still in dry run.','It only reports to #order-exceptions. Set DRY_RUN to false in its first module to go live.',6716018],
+ ['Five scenarios are on but not in use.','The four HubSpot stage movers and Webchat still run and use Make operations.',null],
+ ['27 live scenarios sit outside any Make folder.','Returns, Warranty, Address Capture, Customer PO, the Backorder button and Real Revenue.',null],
+ ['Spare copy of PO Delivery Button Handler.','An unfiled copy is switched off. The live one is 5450369.',6768010],
+ ['Test copy of the VA Activity Monitor is on.','It only runs when started by hand.',7003370]
+];
+function aCount(rows){return rows.reduce((n,r)=>n+(r[3]||1),0);}
+function aToggle(row,kids){row.onclick=()=>{const open=!kids.hidden;kids.hidden=open;row.classList.toggle('open',!open);};}
+function autoRender(){
+  const el=document.getElementById('apane-depts');el.innerHTML='';let total=0;
+  AUTO.forEach(d=>{
+    const dn=d.groups.reduce((n,g)=>n+aCount(g[1]),0);total+=dn;
+    const wrap=document.createElement('div');
+    const row=document.createElement('div');row.className='nrow';
+    row.innerHTML=`<span class="car">▶</span><span class="nic">${d.icon}</span><span class="nt">${escHtml(d.name)}</span><span class="nmeta">${dn}</span>`;
+    const kids=document.createElement('div');kids.className='nkids';kids.hidden=true;
+    d.groups.forEach(g=>{
+      const gw=document.createElement('div');
+      const gr=document.createElement('div');gr.className='nrow';
+      const allIdle=g[1].every(r=>r[4]==='idle'),hasWarn=g[1].some(r=>r[4]==='warn');
+      if(allIdle)gr.classList.add('idle');
+      gr.innerHTML=`<span class="car">▶</span><span class="nsec">${escHtml(g[0])}</span><span style="flex:1"></span><span class="nmeta${hasWarn?' warn':''}">${hasWarn?'1 dry run · ':''}${aCount(g[1])}</span>`;
+      const gk=document.createElement('div');gk.className='nkids';gk.hidden=true;
+      g[1].forEach(r=>{
+        const a=document.createElement('a');a.className='nrow'+(r[4]==='idle'?' idle':'');a.href=MAKE_EDIT+r[2]+'/edit';a.target='_blank';a.style.textDecoration='none';a.title='Open in Make';
+        a.innerHTML=`<span class="car leaf">▶</span><span class="nt">${escHtml(r[0])}</span><span class="nmeta${r[4]==='warn'?' warn':''}">${escHtml(r[1])}</span><span class="nopen">↗</span>`;
+        gk.appendChild(a);
+      });
+      aToggle(gr,gk);gw.appendChild(gr);gw.appendChild(gk);kids.appendChild(gw);
+    });
+    aToggle(row,kids);wrap.appendChild(row);wrap.appendChild(kids);el.appendChild(wrap);
+  });
+  document.getElementById('auto-count').textContent=total+' live';
+  document.getElementById('auto-map-link').href=AUTO_MAP_URL;
+  document.getElementById('apane-look').innerHTML=AUTO_LOOK.map(x=>{
+    const inner=`<span class="adot"></span><span><b>${escHtml(x[0])}</b> ${escHtml(x[1])}</span>`;
+    return x[2]?`<a class="alook" href="${MAKE_EDIT+x[2]}/edit" target="_blank">${inner}</a>`:`<div class="alook">${inner}</div>`;
+  }).join('');
 }
-async function nGet(path){
-  const r=await fetch(NOTION_PROXY+path);const d=await r.json();
-  if(!d.ok)throw new Error(d.error||'Notion error');return d;
-}
-async function nChildren(id){
-  if(nKids[id])return nKids[id];
-  const d=await nGet('/notion/children?id='+encodeURIComponent(id));
-  nKids[id]=d.items||[];return nKids[id];
-}
-// A row that can expand (page/database) — children load on first click.
-function nNode(item,depth){
-  const wrap=document.createElement('div');
-  const row=document.createElement('div');row.className='nrow';
-  row.innerHTML=`<span class="car">▶</span><span class="nic">${escHtml(item.icon||'📄')}</span><span class="nt">${escHtml(item.title||'Untitled')}</span>`+
-    (item.edited?`<span class="nmeta">${nAgo(item.edited)}</span>`:'')+
-    `<a class="nopen" href="${escHtml(item.url)}" target="_blank" title="Open in Notion" onclick="event.stopPropagation()">↗</a>`;
-  const kids=document.createElement('div');kids.className='nkids';kids.hidden=true;
-  row.onclick=async()=>{
-    const open=!kids.hidden;
-    if(open){kids.hidden=true;row.classList.remove('open');return;}
-    kids.hidden=false;row.classList.add('open');
-    if(!kids.childNodes.length){
-      kids.innerHTML='<div class="nmsg">Loading…</div>';
-      try{
-        const items=await nChildren(item.id);
-        kids.innerHTML='';
-        if(!items.length){kids.innerHTML='<div class="nmsg">No sub-pages</div>';row.querySelector('.car').classList.add('leaf');return;}
-        items.forEach(k=>kids.appendChild(nNode(k,depth+1)));
-      }catch(e){kids.innerHTML=`<div class="nmsg" style="color:var(--red)">${escHtml(e.message)}</div>`;}
-    }
-  };
-  wrap.appendChild(row);wrap.appendChild(kids);return wrap;
-}
-// A section header (Recents / Pages) that expands a flat or nested list.
-function nSection(label,loader,startOpen){
-  const wrap=document.createElement('div');
-  const row=document.createElement('div');row.className='nrow'+(startOpen?' open':'');
-  row.innerHTML=`<span class="car">▶</span><span class="nsec">${label}</span>`;
-  const kids=document.createElement('div');kids.className='nkids';kids.hidden=!startOpen;
-  let loaded=false;
-  const load=async()=>{
-    if(loaded)return;loaded=true;kids.innerHTML='<div class="nmsg">Loading…</div>';
-    try{const items=await loader();kids.innerHTML='';
-      if(!items.length){kids.innerHTML='<div class="nmsg">Nothing here yet</div>';return;}
-      items.forEach(k=>kids.appendChild(nNode(k,1)));
-    }catch(e){kids.innerHTML=`<div class="nmsg" style="color:var(--red)">${escHtml(e.message)}</div>`;}
-  };
-  row.onclick=()=>{const open=!kids.hidden;kids.hidden=open;row.classList.toggle('open',!open);if(!open)load();};
-  if(startOpen)load();
-  wrap.appendChild(row);wrap.appendChild(kids);return wrap;
-}
-async function notionLoadBrowse(){
-  const el=document.getElementById('npane-browse');el.innerHTML='';
-  el.appendChild(nSection('Recents',async()=>(await nGet('/notion/recent')).items,false));
-  el.appendChild(nSection('Pages',async()=>(await nGet('/notion/tree')).roots,true));
-}
-async function notionLoadLibs(){
-  const el=document.getElementById('npane-libs');el.innerHTML='<div class="nmsg">Loading…</div>';
-  try{
-    const items=(await nChildren(NOTION_OPS_HUB)).filter(i=>i.type==='database'||/task bank|template/i.test(i.title));
-    el.innerHTML='';
-    if(!items.length){el.innerHTML='<div class="nmsg">No libraries found under the Operations Hub</div>';return;}
-    items.forEach(i=>el.appendChild(nNode(i,1)));
-  }catch(e){el.innerHTML=`<div class="nmsg" style="color:var(--red)">${escHtml(e.message)}</div>`;}
-}
-async function notionLoadNotes(){
-  const el=document.getElementById('npane-notes');el.innerHTML='';
-  const top=document.createElement('a');top.className='nrow';top.href=NOTION_TODAYS_NOTES;top.target='_blank';top.style.textDecoration='none';
-  top.innerHTML=`<span class="car leaf">▶</span><span class="nic">📝</span><span class="nt">Today's Notes</span><span class="nmeta">open</span>`;
-  el.appendChild(top);
-  el.appendChild(nSection('Private Hub',async()=>nChildren(NOTION_PRIVATE_HUB),true));
-}
-function notionTab(name){
-  document.querySelectorAll('.ntab').forEach(b=>b.classList.toggle('on',b.dataset.ntab===name));
-  ['browse','libs','notes'].forEach(k=>{document.getElementById('npane-'+k).hidden=(k!==name);});
-  try{localStorage.setItem('z_ntab',name);}catch(e){}
-}
-async function notionRefresh(){
-  const b=document.getElementById('notion-refresh');b.textContent='⏳';
-  try{await fetch(NOTION_PROXY+'/notion/refresh');}catch(e){}
-  Object.keys(nKids).forEach(k=>delete nKids[k]);
-  await Promise.all([notionLoadBrowse(),notionLoadLibs(),notionLoadNotes()]);
-  b.textContent='↻';
+function autoTab(name){
+  document.querySelectorAll('[data-atab]').forEach(b=>b.classList.toggle('on',b.dataset.atab===name));
+  ['depts','look'].forEach(k=>{document.getElementById('apane-'+k).hidden=(k!==name);});
+  try{localStorage.setItem('z_atab',name);}catch(e){}
 }
 (function(){
-  let t='browse';try{t=localStorage.getItem('z_ntab')||'browse';}catch(e){}
-  notionTab(t);
-  notionLoadBrowse();notionLoadLibs();notionLoadNotes();
+  autoRender();
+  let t='depts';try{t=localStorage.getItem('z_atab')||'depts';}catch(e){}
+  autoTab(t==='look'?'look':'depts');
 })();
 
 // ══ SLACK ══
