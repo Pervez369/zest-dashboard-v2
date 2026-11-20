@@ -233,12 +233,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Epilog
             <a class="card-link" id="auto-map-link" href="#" target="_blank">Full map →</a>
           </div>
         </div>
-        <div class="ntabs">
-          <button class="ntab on" data-atab="depts" onclick="autoTab('depts')">Departments</button>
-          <button class="ntab" data-atab="look" onclick="autoTab('look')">Needs a look</button>
-        </div>
         <div class="npane ntree" id="apane-depts"></div>
-        <div class="npane" id="apane-look" hidden></div>
       </div>
     </div>
 
@@ -686,13 +681,6 @@ const AUTO=[
   ['Real Revenue',[['BigCommerce orders','2:00',6567463],['Google Ads + Meta spend','2:15',6567807],['Pinterest spend','2:20',6567818],['Claims refresh','2:30',6745964],['GA4 revenue by channel','3:05',6568282],['PMax monthly check','monthly',6568068],['Microsoft Ads spend','instant',6567714],['Order touch tracker','instant',6579510],['On-demand helpers (4)','by hand',6568827,4]]],
   ['Blog',[['Blog Images','Mon 12:30',6479503],['Blog Draft Generator','Mon 1:30pm',6371548],['Blog Publisher','M/W/F 9:00',6371656]]]]}
 ];
-const AUTO_LOOK=[
- ['Invoice Date Sweep is still in dry run.','It only reports to #order-exceptions. Set DRY_RUN to false in its first module to go live.',6716018],
- ['Five scenarios are on but not in use.','The four HubSpot stage movers and Webchat still run and use Make operations.',null],
- ['27 live scenarios sit outside any Make folder.','Returns, Warranty, Address Capture, Customer PO, the Backorder button and Real Revenue.',null],
- ['Spare copy of PO Delivery Button Handler.','An unfiled copy is switched off. The live one is 5450369.',6768010],
- ['Test copy of the VA Activity Monitor is on.','It only runs when started by hand.',7003370]
-];
 function aCount(rows){return rows.reduce((n,r)=>n+(r[3]||1),0);}
 function aToggle(row,kids){row.onclick=()=>{const open=!kids.hidden;kids.hidden=open;row.classList.toggle('open',!open);};}
 function autoRender(){
@@ -721,21 +709,8 @@ function autoRender(){
   });
   document.getElementById('auto-count').textContent=total+' live';
   document.getElementById('auto-map-link').href=AUTO_MAP_URL;
-  document.getElementById('apane-look').innerHTML=AUTO_LOOK.map(x=>{
-    const inner=`<span class="adot"></span><span><b>${escHtml(x[0])}</b> ${escHtml(x[1])}</span>`;
-    return x[2]?`<a class="alook" href="${MAKE_EDIT+x[2]}/edit" target="_blank">${inner}</a>`:`<div class="alook">${inner}</div>`;
-  }).join('');
 }
-function autoTab(name){
-  document.querySelectorAll('[data-atab]').forEach(b=>b.classList.toggle('on',b.dataset.atab===name));
-  ['depts','look'].forEach(k=>{document.getElementById('apane-'+k).hidden=(k!==name);});
-  try{localStorage.setItem('z_atab',name);}catch(e){}
-}
-(function(){
-  autoRender();
-  let t='depts';try{t=localStorage.getItem('z_atab')||'depts';}catch(e){}
-  autoTab(t==='look'?'look':'depts');
-})();
+autoRender();
 
 // ══ SLACK ══
 const CHANNELS={
